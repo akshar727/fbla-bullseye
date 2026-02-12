@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: items, error } = await supabase.from("Items").select("*");
+  const { data: items, error } = await supabase.from("items").select("*");
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

@@ -22,7 +22,7 @@ export async function GET(
     num_images,
     claimed_by,
     date_returned,
-    posted_by:public_profiles (
+    posted_by:users!Item_posted_by_fkey (
       name
     )
   `,
