@@ -34,6 +34,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   personal: "from-violet-400 to-purple-500",
 };
 
+const CATEGORY_BADGE_COLORS: Record<string, string> = {
+  electronics: "bg-blue-100 text-blue-700",
+  clothing: "bg-pink-100 text-pink-700",
+  bags: "bg-amber-100 text-amber-700",
+  documents: "bg-emerald-100 text-emerald-700",
+  personal: "bg-violet-100 text-violet-700",
+};
+
 export default function BrowsePage() {
   const router = useRouter();
   const [items, setItems] = useState<ItemResponse[]>([]);
@@ -177,16 +185,19 @@ export default function BrowsePage() {
                   <h2 className="font-semibold text-base leading-tight line-clamp-1">
                     {item.name}
                   </h2>
-                  <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize shrink-0 ${STATUS_COLORS[item.status] ?? ""}`}
-                  >
-                    {item.status}
-                  </span>
+                  <div className="flex gap-1 shrink-0 flex-wrap justify-end">
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_COLORS[item.status] ?? ""}`}
+                    >
+                      {item.status}
+                    </span>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[item.category] ?? "bg-slate-100 text-slate-700"}`}
+                    >
+                      {getCategoryLabel(item.category)}
+                    </span>
+                  </div>
                 </div>
-
-                <p className="text-xs text-muted-foreground">
-                  {getCategoryLabel(item.category)}
-                </p>
 
                 {item.description && (
                   <p className="text-sm text-muted-foreground line-clamp-2">

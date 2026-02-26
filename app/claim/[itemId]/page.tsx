@@ -5,7 +5,6 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
@@ -17,12 +16,6 @@ import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 
 const claimFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  schoolEmail: z
-    .string()
-    .email("Invalid email address")
-    .min(1, "School email is required"),
   uniqueIdentifiers: z
     .string()
     .min(
@@ -78,10 +71,7 @@ export default function ClaimItemPage({
       });
   }, [itemId]);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!u_loading && !user) router.replace("/");
-  }, [u_loading, user, router]);
+  // Auth check handled in render below
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -103,14 +93,15 @@ export default function ClaimItemPage({
 
   const onSubmit = async (values: ClaimFormValues) => {
     if (!itemId) return;
+    if (proofImages.length === 0) {
+      toast.error("Please upload at least one proof of ownership.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const fd = new FormData();
       fd.append("itemId", itemId);
-      fd.append(
-        "extraDescriptions",
-        `${values.firstName} ${values.lastName} <${values.schoolEmail}>\n${values.uniqueIdentifiers}`,
-      );
+      fd.append("extraDescriptions", values.uniqueIdentifiers);
       for (const img of proofImages) {
         fd.append("proof_images", img);
       }
@@ -132,6 +123,19 @@ export default function ClaimItemPage({
     }
   };
 
+  // Change redirect to show a login prompt instead
+  if (!u_loading && !user) {
+    return (
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center gap-4 text-center">
+        <p className="text-2xl font-bold">You need to be logged in</p>
+        <p className="text-muted-foreground">
+          Please sign in before submitting a claim.
+        </p>
+        <Button onClick={() => router.push("/")}>Go to Login</Button>
+      </div>
+    );
+  }
+
   if (u_loading || loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center">
@@ -139,8 +143,6 @@ export default function ClaimItemPage({
       </div>
     );
   }
-
-  if (!user) return null;
 
   return (
     <div className="px-4 py-12">
@@ -187,56 +189,10 @@ export default function ClaimItemPage({
             </CardTitle>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      placeholder="Enter your first name"
-                      {...register("firstName")}
-                      aria-invalid={!!errors.firstName}
-                    />
-                    {errors.firstName && (
-                      <p className="text-sm text-red-500">
-                        {errors.firstName.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      placeholder="Enter your last name"
-                      {...register("lastName")}
-                      aria-invalid={!!errors.lastName}
-                    />
-                    {errors.lastName && (
-                      <p className="text-sm text-red-500">
-                        {errors.lastName.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="schoolEmail">School Email Address</Label>
-                  <Input
-                    id="schoolEmail"
-                    type="email"
-                    placeholder="your.name@school.edu"
-                    {...register("schoolEmail")}
-                    aria-invalid={!!errors.schoolEmail}
-                  />
-                  {errors.schoolEmail && (
-                    <p className="text-sm text-red-500">
-                      {errors.schoolEmail.message}
-                    </p>
-                  )}
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="uniqueIdentifiers">
-                    Unique Identifiers (Not in Photo)
+                    Unique Identifiers (Not in Photo){" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Textarea
                     id="uniqueIdentifiers"
@@ -253,7 +209,9 @@ export default function ClaimItemPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Proof of Ownership (Optional)</Label>
+                  <Label>
+                    Proof of Ownership <span className="text-red-500">*</span>
+                  </Label>
                   <input
                     ref={fileInputRef}
                     type="file"
