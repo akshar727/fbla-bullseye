@@ -23,6 +23,7 @@ export async function GET() {
     .select(
       `
       *,
+      claimed_by(id, name, email),
       claims (
         id,
         claimant,

@@ -126,7 +126,7 @@ export default function LostPage() {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-3xl">Report Lost Item</CardTitle>
+          <CardTitle className="text-3xl">Report a Found Item</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -179,7 +179,7 @@ export default function LostPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Last Known Location *</Label>
+              <Label htmlFor="location">Location Found *</Label>
               <Input
                 type="text"
                 id="location"

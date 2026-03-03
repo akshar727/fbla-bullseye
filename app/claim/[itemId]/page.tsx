@@ -2,16 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Recaptcha } from "@/components/ui/recaptcha";
+import { verifyCaptcha } from "@/lib/captcha";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 
@@ -32,16 +32,17 @@ export default function ClaimItemPage({
   params: Promise<{ itemId: string }>;
 }) {
   const router = useRouter();
-  const supabase = createClient();
   const { user, u_loading } = useUser();
 
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [itemId, setItemId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   // Proof-of-ownership images state
   const [proofImages, setProofImages] = useState<File[]>([]);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -59,16 +60,14 @@ export default function ClaimItemPage({
   useEffect(() => {
     if (!itemId) return;
     setLoading(true);
-    supabase
-      .from("items")
-      .select("*")
-      .eq("id", itemId)
-      .single()
-      .then(({ data, error }) => {
-        if (error) console.error("Error fetching item:", error);
+    fetch(`/api/item/${itemId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.error) console.error("Error fetching item:", data.error);
         else setItem(data);
-        setLoading(false);
-      });
+      })
+      .catch((err) => console.error("Error fetching item:", err))
+      .finally(() => setLoading(false));
   }, [itemId]);
 
   // Auth check handled in render below
@@ -97,8 +96,21 @@ export default function ClaimItemPage({
       toast.error("Please upload at least one proof of ownership.");
       return;
     }
+    if (!captchaToken) {
+      toast.error("Please complete the CAPTCHA");
+      return;
+    }
     setIsSubmitting(true);
     try {
+      // Verify CAPTCHA first
+      const verified = await verifyCaptcha(captchaToken);
+
+      if (!verified) {
+        toast.error("CAPTCHA verification failed. Please try again.");
+        setCaptchaToken(null);
+        return;
+      }
+
       const fd = new FormData();
       fd.append("itemId", itemId);
       fd.append("extraDescriptions", values.uniqueIdentifiers);
@@ -151,7 +163,7 @@ export default function ClaimItemPage({
         Please provide details to verify ownership. Our team reviews all claims
         within 24 hours to ensure items are returned to their rightful owners.
       </h2>
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-4 mt-4 items-stretch">
         {/* Item summary */}
         <div className="flex flex-1 flex-col gap-4">
           <Card className="flex-1 p-6">
@@ -159,36 +171,69 @@ export default function ClaimItemPage({
               Item Summary
             </CardTitle>
             <CardContent className="flex flex-col gap-2">
-              {item?.image_urls?.[0] ? (
-                <img
-                  src={item.image_urls[0]}
-                  alt={item.name}
-                  className="h-55 w-full object-cover rounded-md"
-                />
+              {item?.image_urls?.length > 0 ? (
+                <div className="space-y-2">
+                  <img
+                    src={item.image_urls[activeImage]}
+                    alt={item.name}
+                    className="w-full aspect-square object-cover rounded-md border"
+                  />
+                  {item.image_urls.length > 1 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {item.image_urls.map((url: string, i: number) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setActiveImage(i)}
+                          className={`w-14 h-14 rounded-md border-2 overflow-hidden transition-all ${
+                            i === activeImage
+                              ? "border-primary"
+                              : "border-transparent opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
-                <Skeleton className="h-55 w-full" />
-              )}
+                <div className="w-full aspect-square rounded-md border bg-muted flex items-center justify-center text-muted-foreground text-sm">
+                  No images
+                </div>
+              )}  
               <div>
+                <p>
+                  Posted by:{" "}
+                  <span className="text-foreground">
+                    {(item.posted_by as any)?.name ?? "someone"}
+                  </span>
+                </p>
                 <p className="text-xl font-black">{item?.name}</p>
-                <p className="text-md font-medium text-gray-400">
-                  {item?.last_location}
+                <p className="text-md font-medium">
+                  Last Location: {item?.last_location}
                 </p>
-                <p className="text-md font-medium text-gray-400">
-                  {item?.description}
-                </p>
+                <p className="text-md font-medium">{item?.description}</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Claim form */}
-        <div className="flex-2">
-          <Card className="p-6">
+        <div className="flex-2 flex flex-col">
+          <Card className="p-6 flex-1 flex flex-col">
             <CardTitle className="text-lg font-bold mb-4">
               Claimant Details
             </CardTitle>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <CardContent className="flex-1 flex flex-col">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col flex-1 gap-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="uniqueIdentifiers">
                     Unique Identifiers (Not in Photo){" "}
@@ -260,7 +305,11 @@ export default function ClaimItemPage({
                   )}
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex justify-center scale-90 origin-top -my-3">
+                  <Recaptcha onVerify={setCaptchaToken} />
+                </div>
+
+                <div className="flex gap-4 pt-4 mt-auto">
                   <Button
                     type="button"
                     variant="outline"
@@ -268,7 +317,7 @@ export default function ClaimItemPage({
                     disabled={isSubmitting}
                     onClick={() => router.back()}
                   >
-                    Cancel
+                    Go Back
                   </Button>
                   <LoadingButton
                     type="submit"

@@ -27,7 +27,16 @@ type ClaimSummary = {
   created_at: string;
 };
 
-type ItemWithClaims = ItemResponse & { claims: ClaimSummary[] };
+type ClaimedByUser = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+type ItemWithClaims = ItemResponse & {
+  claims: ClaimSummary[];
+  claimed_by?: ClaimedByUser | null;
+};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -120,9 +129,9 @@ export default function DashboardPage() {
 
       {!loading && items.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-lg font-medium">No lost items reported yet.</p>
-          <Button className="mt-4" onClick={() => router.push("/lost")}>
-            Report a Lost Item
+          <p className="text-lg font-medium">No found items reported yet.</p>
+          <Button className="mt-4" onClick={() => router.push("/found")}>
+            Report a Found Item
           </Button>
         </div>
       )}
@@ -136,8 +145,7 @@ export default function DashboardPage() {
                   <div>
                     <CardTitle className="text-lg">{item.name}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {getCategoryLabel(item.category)} ·{" "}
-                      {item.last_location && `📍 ${item.last_location}`}
+                      {getCategoryLabel(item.category)}
                     </p>
                   </div>
                   <Button
@@ -151,7 +159,21 @@ export default function DashboardPage() {
               </CardHeader>
 
               <CardContent>
-                {item.claims.length === 0 ? (
+                {item.status === "claimed" && item.claimed_by ? (
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
+                    <p className="text-sm font-medium text-emerald-900">
+                      ✓ Claimed
+                    </p>
+                    <p className="text-sm text-emerald-700 mt-1">
+                      <span className="font-medium">Name:</span>{" "}
+                      {item.claimed_by.name}
+                    </p>
+                    <p className="text-sm text-emerald-700">
+                      <span className="font-medium">Email:</span>{" "}
+                      {item.claimed_by.email}
+                    </p>
+                  </div>
+                ) : item.claims.length === 0 ? (
                   <p className="text-sm text-muted-foreground italic">
                     No claims yet.
                   </p>

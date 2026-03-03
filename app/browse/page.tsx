@@ -21,17 +21,9 @@ import {
 } from "@/lib/categories";
 
 const STATUS_COLORS: Record<string, string> = {
-  lost: "bg-red-100 text-red-700",
+  unclaimed: "bg-red-100 text-red-700",
   found: "bg-green-100 text-green-700",
   claimed: "bg-blue-100 text-blue-700",
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  electronics: "from-blue-400 to-indigo-500",
-  clothing: "from-pink-400 to-rose-500",
-  bags: "from-amber-400 to-orange-500",
-  documents: "from-emerald-400 to-teal-500",
-  personal: "from-violet-400 to-purple-500",
 };
 
 const CATEGORY_BADGE_COLORS: Record<string, string> = {
@@ -79,9 +71,9 @@ export default function BrowsePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Browse Lost Items</h1>
+      <h1 className="text-3xl font-bold mb-2">Browse Found Items</h1>
       <p className="text-muted-foreground mb-6">
-        Search through reported lost items. Found something? Click an item to
+        Search through reported found items. Found something? Click an item to
         learn more.
       </p>
 
@@ -198,29 +190,35 @@ export default function BrowsePage() {
                     </span>
                   </div>
                 </div>
+                <div>
+                  {item.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
 
-                {item.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {item.description}
-                  </p>
-                )}
+                  {item.last_location && (
+                    <p className="text-xs text-muted-foreground">
+                      Last Location: {item.last_location}
+                    </p>
+                  )}
 
-                {item.last_location && (
-                  <p className="text-xs text-muted-foreground">
-                    📍 {item.last_location}
-                  </p>
-                )}
-
-                {item.date_lost && (
-                  <p className="text-xs text-muted-foreground">
-                    Lost:{" "}
-                    {new Date(item.date_lost).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                )}
+                  {item.date_lost && (
+                    <p className="text-xs text-muted-foreground">
+                      Found on{" "}
+                      {new Date(item.date_lost).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
+                  {item.posted_by && (
+                    <p className="text-xs text-muted-foreground">
+                      Posted by {item.posted_by.name}
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

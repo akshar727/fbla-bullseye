@@ -3,14 +3,17 @@ export type ItemResponse = {
   name: string;
   category: string;
   description: string;
-  status: "lost" | "found" | "claimed";
+  status: "unclaimed" | "found" | "claimed";
   created_at: string;
   last_location: string;
   date_lost: string | null;
   date_found: string | null;
   image_urls: string[];
   num_images: number;
-  posted_by: string;
+  posted_by: {
+    id: string;
+    name: string;
+  };
   claimed_by: {
     id: string;
     name: string;
@@ -19,10 +22,10 @@ export type ItemResponse = {
 };
 
 export type ClaimResponse = {
-    id: string;
-    claimant: string;
-    claimed_item: ItemResponse;
-    extra_descriptions: string;
-    proof_of_ownerships: string[];
-    created_at: string;
-}
+  id: string;
+  claimant: string;
+  claimed_item: ItemResponse;
+  extra_descriptions: string;
+  proof_of_ownerships: string[];
+  created_at: string;
+};

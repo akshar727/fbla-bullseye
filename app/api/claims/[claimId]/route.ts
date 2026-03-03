@@ -138,6 +138,23 @@ export async function PATCH(
   }
 
   if (action === "approve") {
+    // Delete all other claims for this item first
+    const { error: deleteOtherClaimsError } = await supabase
+      .from("claims")
+      .delete()
+      .eq("claimed_item", claim.claimed_item.id)
+      .neq("id", claimId);
+
+    if (deleteOtherClaimsError) {
+      return new Response(
+        JSON.stringify({ error: deleteOtherClaimsError.message }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
     // Mark the item as claimed
     const { error: itemError } = await supabase
       .from("items")

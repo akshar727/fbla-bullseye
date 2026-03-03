@@ -1,57 +1,43 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/use-user";
-import { createClient } from "@/lib/supabase/client";
-import Image from "next/image";
-import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const supabase = createClient();
-  const { u_loading, error, user, psets } = useUser();
-  async function signInWithGoogle() {
-    // setIsGoogleLoading(true);
-    const next = window.location.pathname;
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback${
-            next ? `?next=${encodeURIComponent(next)}` : ""
-          }`,
-        },
-      });
+  const router = useRouter();
 
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      toast.error(
-        "There was an error logging in with Google. Please try again.",
-      );
-      // setIsGoogleLoading(false);
-    }
-  }
   return (
-    <>
-      <Button
-        onClick={signInWithGoogle}
-        // disabled={isGoogleLoading}
-        variant={"outline"}
-      >
-        Sign in with Google
-      </Button>
-      {u_loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p>Error: {error.message}</p>
-      ) : user ? (
-        <div>
-          <p>Welcome, {user.email}!</p>
-          <p>Your psets: {psets}</p>
-        </div>
-      ) : (
-        <p>Please sign in to see your information.</p>
-      )}
-    </>
+    <main className="min-h-screen flex items-center justify-center px-4 py-10 bg-muted/30">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-2xl font-bold text-center">
+            Bullseye Lost & Found
+          </CardTitle>
+          <p className="text-sm text-muted-foreground text-center">
+            Report lost items, browse listings, and submit claims.
+          </p>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <Button className="w-full" onClick={() => router.push("/login")}>
+            Log In
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push("/signup")}
+          >
+            Sign Up
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => router.push("/browse")}
+          >
+            Continue as Guest
+          </Button>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

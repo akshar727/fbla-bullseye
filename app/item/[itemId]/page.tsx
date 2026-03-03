@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
@@ -19,7 +19,7 @@ import {
 import type { ItemResponse } from "@/lib/types";
 
 const STATUS_STYLES: Record<string, string> = {
-  lost: "bg-red-100 text-red-700 border-red-200",
+  unclaimed: "bg-red-100 text-red-700 border-red-200",
   found: "bg-green-100 text-green-700 border-green-200",
   claimed: "bg-blue-100 text-blue-700 border-blue-200",
 };
@@ -57,7 +57,10 @@ export default function ItemPage({
       .finally(() => setLoading(false));
   }, [itemId]);
 
-  const isOwner = !!user && item?.posted_by === user.id;
+  const isOwner = useMemo(() => {
+    console.log("Checking ownership:", { user, item });
+    return !!user && item?.posted_by?.id === user.id;
+  }, [user, item?.posted_by]);
 
   const handleMarkFound = async () => {
     if (!itemId) return;
@@ -199,12 +202,13 @@ export default function ItemPage({
           <div className="space-y-1 text-sm text-muted-foreground">
             {item.last_location && (
               <p>
-                📍 <span className="text-foreground">{item.last_location}</span>
+                Last Location:{" "}
+                <span className="text-foreground">{item.last_location}</span>
               </p>
             )}
             {item.date_lost && (
               <p>
-                🗓 Lost on{" "}
+                Lost on{" "}
                 <span className="text-foreground">
                   {new Date(item.date_lost).toLocaleDateString(undefined, {
                     month: "long",
@@ -214,20 +218,18 @@ export default function ItemPage({
                 </span>
               </p>
             )}
-            {item.status === "claimed" && item.claimed_by && (
-              <p>
-                ✅ Claimed by{" "}
-                <span className="text-foreground">
-                  {(item.claimed_by as any).name ?? "someone"}
-                </span>
-              </p>
-            )}
+            <p>
+              Posted by:{" "}
+              <span className="text-foreground">
+                {(item.posted_by as any)?.name ?? "someone"}
+              </span>
+            </p>
           </div>
 
           {/* Actions */}
           <div className="pt-2 space-y-2">
             {/* Visitor / non-owner: show Claim button */}
-            {!isOwner && item.status === "lost" && (
+            {!isOwner && item.status === "unclaimed" && (
               <Button
                 className="w-full"
                 onClick={() => router.push(`/claim/${item.id}`)}
@@ -246,7 +248,7 @@ export default function ItemPage({
                 >
                   Manage Claims
                 </Button>
-                {item.status === "lost" && (
+                {item.status === "unclaimed" && (
                   <LoadingButton
                     className="w-full"
                     variant="secondary"
@@ -280,7 +282,7 @@ export default function ItemPage({
               undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               disabled={markFoundLoading}

@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: items, error } = await supabase.from("items").select("*");
+  const { data: items, error } = await supabase
+    .from("items")
+    .select("*, posted_by(name, id)");
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
@@ -68,7 +70,7 @@ export async function POST(request: Request) {
       name,
       category,
       description,
-      status: "lost",
+      status: "unclaimed",
       last_location,
       date_lost: date_lost || null,
       date_found: null,
