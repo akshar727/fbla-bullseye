@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   DataTable,
@@ -9,130 +10,140 @@ import {
 
 interface Claim {
   id: string;
-  itemTitle: string;
-  claimedBy: string;
-  claimerEmail: string;
-  status: string;
-  filedOn: string;
-  resolvedOn: string;
+  claimant: string;
+  extra_descriptions: string;
+  created_at: string;
+  claimed_item: {
+    id: string;
+    name: string;
+    status: string;
+  } | null;
 }
-
-const claimStatuses = ["Pending", "Approved", "Rejected"];
-
-const placeholderClaims: Claim[] = Array.from({ length: 15 }, (_, i) => ({
-  id: `clm_${String(i + 1).padStart(3, "0")}`,
-  itemTitle: [
-    "Blue Thermos",
-    "Pink Purse",
-    "Car Keys",
-    "Black Laptop Bag",
-    "Red Jacket",
-    "Silver Watch",
-    "Green Backpack",
-    "Wireless Earbuds",
-    "Textbook - Calculus",
-    "Sunglasses",
-    "Water Bottle",
-    "USB Flash Drive",
-    "Yellow Umbrella",
-    "Wallet (Brown)",
-    "Phone Charger",
-  ][i],
-  claimedBy: [
-    "Olivia Lewis",
-    "Noah Clark",
-    "Mia Robinson",
-    "Leo Garcia",
-    "Kate Thomas",
-    "Jack Anderson",
-    "Iris Martinez",
-    "Henry Taylor",
-    "Grace Lee",
-    "Frank Wilson",
-    "Emma Davis",
-    "David Brown",
-    "Carol White",
-    "Bob Smith",
-    "Alice Johnson",
-  ][i],
-  claimerEmail: [
-    "olivia@email.com",
-    "noah@email.com",
-    "mia@email.com",
-    "leo@email.com",
-    "kate@email.com",
-    "jack@email.com",
-    "iris@email.com",
-    "henry@email.com",
-    "grace@email.com",
-    "frank@email.com",
-    "emma@email.com",
-    "david@email.com",
-    "carol@email.com",
-    "bob@email.com",
-    "alice@email.com",
-  ][i],
-  status: claimStatuses[i % claimStatuses.length],
-  filedOn: `2025-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-  resolvedOn:
-    i % 3 === 0
-      ? "---"
-      : `2025-${String(((i + 1) % 12) + 1).padStart(2, "0")}-${String(((i + 3) % 28) + 1).padStart(2, "0")}`,
-}));
 
 const columns: ColumnDef<Claim>[] = [
   { key: "id", label: "ID" },
-  { key: "itemTitle", label: "Item" },
-  { key: "claimedBy", label: "Claimed By" },
-  { key: "claimerEmail", label: "Email" },
   {
-    key: "status",
-    label: "Status",
+    key: "claimed_item",
+    label: "Item",
     render: (value) => {
-      const v = String(value);
+      const item = value as Claim["claimed_item"];
+      return item?.name || "Unknown";
+    },
+  },
+  {
+    key: "claimant",
+    label: "Claimant ID",
+    render: (value) => {
+      const id = String(value);
+      return id.substring(0, 8) + "...";
+    },
+  },
+  {
+    key: "extra_descriptions",
+    label: "Description",
+    render: (value) => {
+      const desc = String(value || "");
+      return desc.length > 50 ? desc.substring(0, 50) + "..." : desc;
+    },
+  },
+  {
+    key: "claimed_item",
+    label: "Item Status",
+    render: (value) => {
+      const item = value as Claim["claimed_item"];
+      const status = item?.status || "unknown";
       const className =
-        v === "Approved"
-          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-          : v === "Pending"
-            ? "bg-amber-500 hover:bg-amber-600 text-white"
-            : "";
-      const variant = v === "Rejected" ? "destructive" : "default";
+        status === "unclaimed"
+          ? "bg-gray-100 text-gray-800"
+          : status === "found"
+            ? "bg-blue-100 text-blue-800"
+            : status === "claimed"
+              ? "bg-yellow-100 text-yellow-800"
+              : "";
       return (
-        <Badge variant={variant} className={className}>
-          {v}
+        <Badge variant="outline" className={className + " capitalize"}>
+          {status}
         </Badge>
       );
     },
   },
-  { key: "filedOn", label: "Filed On" },
-  { key: "resolvedOn", label: "Resolved On" },
+  {
+    key: "created_at",
+    label: "Filed On",
+    render: (value) => {
+      return new Date(String(value)).toLocaleDateString();
+    },
+  },
 ];
 
-const addFields: FieldDef[] = [
-  {
-    key: "itemTitle",
-    label: "Item Title",
-    placeholder: "Which item is being claimed?",
-  },
-  { key: "claimedBy", label: "Claimed By", placeholder: "Claimer name" },
-  {
-    key: "claimerEmail",
-    label: "Email",
-    type: "email",
-    placeholder: "claimer@email.com",
-  },
-  { key: "status", label: "Status", type: "select", options: claimStatuses },
-];
+const addFields: FieldDef[] = [];
 
 export default function ClaimsPage() {
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchClaims = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/admin/claims");
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch claims: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setClaims(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch claims");
+      console.error("Error fetching claims:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClaims();
+  }, []);
+
+  const handleDeleteClaims = async (ids: string[]) => {
+    try {
+      const response = await fetch("/api/admin/claims", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete claims");
+      }
+
+      await fetchClaims();
+    } catch (err) {
+      console.error("Error deleting claims:", err);
+      throw err;
+    }
+  };
+
   return (
-    <DataTable<Claim>
-      title="Claims"
-      description="Manage all item claims filed by users."
-      columns={columns}
-      data={placeholderClaims}
-      addFields={addFields}
-      searchableKeys={["itemTitle", "claimedBy", "claimerEmail", "status"]}
-    />
+    <div className="space-y-4">
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <DataTable<Claim>
+        title="Claims"
+        description="Manage all item claims filed by users."
+        columns={columns}
+        data={claims}
+        addFields={addFields}
+        searchableKeys={["extra_descriptions"]}
+        onDelete={handleDeleteClaims}
+      />
+    </div>
   );
 }

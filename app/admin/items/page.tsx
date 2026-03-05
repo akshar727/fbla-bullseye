@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   DataTable,
@@ -9,125 +10,172 @@ import {
 
 interface Item {
   id: string;
-  title: string;
+  name: string;
   category: string;
-  location: string;
-  status: string;
-  uploadedBy: string;
-  date: string;
+  last_location: string;
+  status: "unclaimed" | "found" | "claimed";
+  posted_by: { id: string; name: string } | null;
+  created_at: string;
 }
 
 const categories = [
-  "Electronics",
-  "Clothing",
-  "Accessories",
-  "Bags",
-  "Keys",
-  "Books",
-  "Other",
+  "electronics",
+  "clothing",
+  "accessories",
+  "bags",
+  "keys",
+  "books",
+  "other",
 ];
-const locations = [
-  "Main Library",
-  "Student Center",
-  "Gym",
-  "Parking Lot A",
-  "Cafeteria",
-  "Bus Stop 3",
-  "Science Building",
-];
-const statuses = ["Available", "Claimed", "Expired"];
-
-const placeholderItems: Item[] = Array.from({ length: 15 }, (_, i) => ({
-  id: `itm_${String(i + 1).padStart(3, "0")}`,
-  title: [
-    "Blue Thermos",
-    "Pink Purse",
-    "Car Keys",
-    "Black Laptop Bag",
-    "Red Jacket",
-    "Silver Watch",
-    "Green Backpack",
-    "Wireless Earbuds",
-    "Textbook - Calculus",
-    "Sunglasses",
-    "Water Bottle",
-    "USB Flash Drive",
-    "Yellow Umbrella",
-    "Wallet (Brown)",
-    "Phone Charger",
-  ][i],
-  category: categories[i % categories.length],
-  location: locations[i % locations.length],
-  status: statuses[i % statuses.length],
-  uploadedBy: [
-    "Alice Johnson",
-    "Bob Smith",
-    "Carol White",
-    "David Brown",
-    "Emma Davis",
-    "Frank Wilson",
-    "Grace Lee",
-    "Henry Taylor",
-    "Iris Martinez",
-    "Jack Anderson",
-    "Kate Thomas",
-    "Leo Garcia",
-    "Mia Robinson",
-    "Noah Clark",
-    "Olivia Lewis",
-  ][i],
-  date: `2025-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-}));
+const statuses = ["unclaimed", "found", "claimed"];
 
 const columns: ColumnDef<Item>[] = [
   { key: "id", label: "ID" },
-  { key: "title", label: "Item Title" },
+  { key: "name", label: "Item Name" },
   {
     key: "category",
     label: "Category",
-    render: (value) => <Badge variant="outline">{String(value)}</Badge>,
+    render: (value) => (
+      <Badge variant="outline" className="capitalize">
+        {String(value)}
+      </Badge>
+    ),
   },
-  { key: "location", label: "Location" },
+  { key: "last_location", label: "Location" },
   {
     key: "status",
     label: "Status",
     render: (value) => {
       const v = String(value);
       const className =
-        v === "Available"
-          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-          : v === "Claimed"
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "";
-      const variant = v === "Expired" ? "destructive" : "default";
+        v === "unclaimed"
+          ? "bg-gray-100 text-gray-800"
+          : v === "found"
+            ? "bg-blue-100 text-blue-800"
+            : v === "claimed"
+              ? "bg-yellow-100 text-yellow-800"
+              : "";
       return (
-        <Badge variant={variant} className={className}>
+        <Badge variant="outline" className={className + " capitalize"}>
           {v}
         </Badge>
       );
     },
   },
-  { key: "uploadedBy", label: "Uploaded By" },
-  { key: "date", label: "Date" },
+  {
+    key: "posted_by",
+    label: "Posted By",
+    render: (value) => {
+      const postedBy = value as Item["posted_by"];
+      return postedBy?.name || "Unknown";
+    },
+  },
+  {
+    key: "created_at",
+    label: "Date",
+    render: (value) => {
+      return new Date(String(value)).toLocaleDateString();
+    },
+  },
 ];
 
 const addFields: FieldDef[] = [
-  { key: "title", label: "Item Title", placeholder: "e.g. Blue Thermos" },
+  { key: "name", label: "Item Name", placeholder: "e.g. Blue Thermos" },
   { key: "category", label: "Category", type: "select", options: categories },
-  { key: "location", label: "Location", placeholder: "Where was it found?" },
-  { key: "status", label: "Status", type: "select", options: statuses },
-  { key: "uploadedBy", label: "Uploaded By", placeholder: "User name" },
+  {
+    key: "last_location",
+    label: "Location",
+    placeholder: "Where was it found?",
+  },
 ];
 
 export default function ItemsPage() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/admin/items");
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch items: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setItems(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch items");
+      console.error("Error fetching items:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleAddItem = async (newItem: Record<string, unknown>) => {
+    try {
+      const response = await fetch("/api/admin/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newItem),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add item");
+      }
+
+      await fetchItems();
+    } catch (err) {
+      console.error("Error adding item:", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteItems = async (ids: string[]) => {
+    try {
+      const response = await fetch("/api/admin/items", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete items");
+      }
+
+      await fetchItems();
+    } catch (err) {
+      console.error("Error deleting items:", err);
+      throw err;
+    }
+  };
+
   return (
-    <DataTable<Item>
-      title="Items"
-      description="Manage all found items uploaded to the platform."
-      columns={columns}
-      data={placeholderItems}
-      addFields={addFields}
-      searchableKeys={["title", "category", "location", "uploadedBy"]}
-    />
+    <div className="space-y-4">
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <DataTable<Item>
+        title="Items"
+        description="Manage all found items uploaded to the platform."
+        columns={columns}
+        data={items}
+        addFields={addFields}
+        searchableKeys={["name", "category", "last_location"]}
+        onAdd={handleAddItem}
+        onDelete={handleDeleteItems}
+      />
+    </div>
   );
 }

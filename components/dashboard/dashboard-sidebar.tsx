@@ -32,7 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { SidebarUser } from "./sidebar-user";
+// import { SidebarUser } from "./sidebar-user";
 
 const dashboardNav = [
   {
@@ -60,7 +60,7 @@ const databaseNav = [
   },
 ];
 
-export function AdminSidebar() {
+export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
   return (
@@ -89,6 +89,7 @@ export function AdminSidebar() {
         {/* Database */}
         <SidebarGroup>
           <SidebarGroupLabel>
+            <Database className="size-3.5 mr-1.5" />
             Database
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -109,7 +110,7 @@ export function AdminSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarUser
+        {/* <SidebarUser
           user={{
             name:
               user?.user_metadata?.full_name ||
@@ -122,7 +123,7 @@ export function AdminSidebar() {
               user?.user_metadata?.picture ||
               "",
           }}
-        />
+        /> */}
       </SidebarFooter>
     </Sidebar>
   );
