@@ -130,7 +130,7 @@ export default function DashboardPage() {
       {!loading && items.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
           <p className="text-lg font-medium">No found items reported yet.</p>
-          <Button className="mt-4" onClick={() => router.push("/found")}>
+          <Button className="mt-4" onClick={() => router.push("/report/found")}>
             Report a Found Item
           </Button>
         </div>

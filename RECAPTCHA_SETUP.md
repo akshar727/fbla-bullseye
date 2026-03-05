@@ -106,7 +106,7 @@ async function handleSignup(e: FormEvent<HTMLFormElement>) {
       return;
     }
 
-    toast.success("Account created. Check your email to confirm.");
+    toast.success("Account created. Please login.");
     router.push(`/login?next=${encodeURIComponent(nextPath)}`);
   } finally {
     setLoading(false);

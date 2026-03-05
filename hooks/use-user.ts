@@ -10,6 +10,8 @@ export function useUser() {
   const [error, setError] = useState<AuthError | null>(null);
   const supabase = createClient();
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -21,6 +23,16 @@ export function useUser() {
 
         if (session) {
           setSession(session);
+          const { data, error: userError } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
+          if (userError) {
+            setError(error);
+          } else if (data) {
+            setIsAdmin(data.role === "admin");
+          }
           setUser(session.user);
           console.log("Supabase user:", session.user);
         }
@@ -33,5 +45,5 @@ export function useUser() {
     fetchUser();
   }, []);
 
-  return { u_loading, error, session, user };
+  return { u_loading, error, session, user, isAdmin };
 }

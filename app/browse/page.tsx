@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ItemCard } from "@/components/item-card";
 import {
   Select,
   SelectContent,
@@ -14,25 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ItemResponse } from "@/lib/types";
-import {
-  CATEGORY_KEYS,
-  CATEGORY_MAP,
-  getCategoryLabel,
-} from "@/lib/categories";
-
-const STATUS_COLORS: Record<string, string> = {
-  unclaimed: "bg-red-100 text-red-700",
-  found: "bg-green-100 text-green-700",
-  claimed: "bg-blue-100 text-blue-700",
-};
-
-const CATEGORY_BADGE_COLORS: Record<string, string> = {
-  electronics: "bg-blue-100 text-blue-700",
-  clothing: "bg-pink-100 text-pink-700",
-  bags: "bg-amber-100 text-amber-700",
-  documents: "bg-emerald-100 text-emerald-700",
-  personal: "bg-violet-100 text-violet-700",
-};
+import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories";
 
 export default function BrowsePage() {
   const router = useRouter();
@@ -153,74 +136,18 @@ export default function BrowsePage() {
       {!loading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((item) => (
-            <Card
+            <ItemCard
               key={item.id}
-              className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+              name={item.name}
+              status={item.status}
+              category={item.category}
+              description={item.description}
+              location={item.last_location}
+              date={item.date_lost}
+              postedBy={item.posted_by?.name}
+              imageUrl={item.image_urls?.[0]}
               onClick={() => router.push(`/item/${item.id}`)}
-            >
-              {/* Image or placeholder */}
-              {item.image_urls && item.image_urls.length > 0 ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.image_urls[0]}
-                  alt={item.name}
-                  className="h-40 w-full object-cover"
-                />
-              ) : (
-                <div className="h-40 w-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
-                  No image
-                </div>
-              )}
-
-              <CardContent className="pt-4 bg-white space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-semibold text-base leading-tight line-clamp-1">
-                    {item.name}
-                  </h2>
-                  <div className="flex gap-1 shrink-0 flex-wrap justify-end">
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_COLORS[item.status] ?? ""}`}
-                    >
-                      {item.status}
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[item.category] ?? "bg-slate-100 text-slate-700"}`}
-                    >
-                      {getCategoryLabel(item.category)}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-
-                  {item.last_location && (
-                    <p className="text-xs text-muted-foreground">
-                      Last Location: {item.last_location}
-                    </p>
-                  )}
-
-                  {item.date_lost && (
-                    <p className="text-xs text-muted-foreground">
-                      Found on{" "}
-                      {new Date(item.date_lost).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
-                  {item.posted_by && (
-                    <p className="text-xs text-muted-foreground">
-                      Posted by {item.posted_by.name}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            />
           ))}
         </div>
       )}

@@ -92,10 +92,10 @@ export default function ClaimItemPage({
 
   const onSubmit = async (values: ClaimFormValues) => {
     if (!itemId) return;
-    if (proofImages.length === 0) {
-      toast.error("Please upload at least one proof of ownership.");
-      return;
-    }
+    // if (proofImages.length === 0) {
+    //   toast.error("Please upload at least one proof of ownership.");
+    //   return;
+    // }
     if (!captchaToken) {
       toast.error("Please complete the CAPTCHA");
       return;
@@ -205,7 +205,7 @@ export default function ClaimItemPage({
                 <div className="w-full aspect-square rounded-md border bg-muted flex items-center justify-center text-muted-foreground text-sm">
                   No images
                 </div>
-              )}  
+              )}
               <div>
                 <p>
                   Posted by:{" "}
@@ -254,9 +254,7 @@ export default function ClaimItemPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>
-                    Proof of Ownership <span className="text-red-500">*</span>
-                  </Label>
+                  <Label>Proof of Ownership</Label>
                   <input
                     ref={fileInputRef}
                     type="file"

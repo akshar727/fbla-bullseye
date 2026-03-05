@@ -40,15 +40,13 @@ export async function updateSession(request: NextRequest) {
   // Get the user's role using the custom getUserRole function
   const role = await getUserRole();
 
-  // Redirect non-admin users trying to access admin pages to the home page
-  if (
-    user &&
-    role !== "admin" &&
-    request.nextUrl.pathname.startsWith("/admin")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+  // Redirect non-admin users trying to access admin pages to 404
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (!user || role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/404";
+      return NextResponse.rewrite(url);
+    }
   }
 
   // Redirect unauthenticated users to sign-in page

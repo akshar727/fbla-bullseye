@@ -4,7 +4,9 @@ export async function GET() {
   const supabase = await createClient();
   const { data: items, error } = await supabase
     .from("items")
-    .select("*, posted_by(name, id)");
+    .select(
+      "*, posted_by:user_public_profiles!items_posted_by_fkey (id, name)",
+    );
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

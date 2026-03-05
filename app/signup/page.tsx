@@ -76,7 +76,7 @@ function SignupContent() {
       }
 
       toast.success(
-        "Account created. Check your email to confirm your account.",
+        "Account created.Please login.",
       );
       router.push(`/login?next=${encodeURIComponent(nextPath)}`);
     } catch {

@@ -17,8 +17,8 @@ import { Menu, X, Search, Bell, User } from "lucide-react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, u_loading } = useUser();
-  console.log("Navbar user:", user);
+  const { user, u_loading, isAdmin } = useUser();
+  console.log("is admin", isAdmin);
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -65,7 +65,18 @@ export function Navbar() {
                 {user ? "Dashboard" : "Login"}
               </Link>
             </Button>
-            {/* <img src={user?.user_metadata?.avatar_url} alt="User Avatar" /> */}
+
+            {/* Admin Button */}
+            {isAdmin && (
+              <Button
+                className="hidden md:inline-flex"
+                size="sm"
+                variant="outline"
+                asChild
+              >
+                <Link href="/admin">Admin</Link>
+              </Button>
+            )}
 
             {/* User Menu Dropdown */}
             {!u_loading && user && (
@@ -193,6 +204,11 @@ export function Navbar() {
                   {user ? "Dashboard" : "Login"}
                 </Link>
               </Button>
+              {isAdmin && (
+                <Button className="w-full" size="sm" variant="outline" asChild>
+                  <Link href="/admin">Admin</Link>
+                </Button>
+              )}
             </div>
           </div>
         )}

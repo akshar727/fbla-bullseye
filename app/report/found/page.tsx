@@ -76,9 +76,9 @@ export default function LostPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data?.error ?? "Failed to submit lost item report.");
+        toast.error(data?.error ?? "Failed to submit found item report.");
       } else {
-        toast.success("Lost item report submitted!");
+        toast.success("Found item report submitted!");
         router.push(`/item/${data.id}`);
       }
     } catch (err) {
@@ -192,7 +192,7 @@ export default function LostPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dateTimeLost">Date & Time Lost *</Label>
+              <Label htmlFor="dateTimeLost">Date & Time Found *</Label>
               <Input
                 type="datetime-local"
                 id="dateTimeLost"
@@ -256,7 +256,7 @@ export default function LostPage() {
               className="w-full"
               loading={isSubmitting}
             >
-              Submit Lost Item Report
+              Submit Found Item Report
             </LoadingButton>
           </form>
         </CardContent>

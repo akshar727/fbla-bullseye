@@ -12,7 +12,18 @@ export async function GET(
       .from("claims")
       .select(
         `
-    *, claimed_item(*, posted_by(name,id), claimed_by(name,id))
+    *,
+    claimed_item:items!claim_claimed_item_fkey (
+      *,
+      posted_by:users!items_posted_by_fkey (
+        id,
+        name
+      ),
+      claimed_by:users!items_claimed_by_fkey (
+        id,
+        name
+      )
+    )
   `,
       )
       .eq("id", claimId)

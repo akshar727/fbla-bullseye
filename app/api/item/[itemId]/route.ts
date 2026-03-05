@@ -12,7 +12,7 @@ export async function GET(
       .from("items")
       .select(
         `
-    *, posted_by(name, id)
+    *, posted_by:user_public_profiles!items_posted_by_fkey (id, name)
   `,
       )
       .eq("id", itemId)
