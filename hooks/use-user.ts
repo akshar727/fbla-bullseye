@@ -12,37 +12,45 @@ export function useUser() {
 
   const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-        if (error) throw error;
-
-        if (session) {
-          setSession(session);
-          const { data, error: userError } = await supabase
-            .from("users")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
-          if (userError) {
-            setError(error);
-          } else if (data) {
-            setIsAdmin(data.role === "admin");
-          }
-          setUser(session.user);
-          console.log("Supabase user:", session.user);
-        }
-      } catch (error) {
-        setError(error as AuthError);
-      } finally {
-        setLoading(false);
+  async function syncSession(session: Session | null) {
+    if (session) {
+      setSession(session);
+      setUser(session.user);
+      const { data, error: userError } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+      if (!userError && data) {
+        setIsAdmin(data.role === "admin");
       }
+    } else {
+      setSession(null);
+      setUser(null);
+      setIsAdmin(false);
     }
-    fetchUser();
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    // Initial session load
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        setError(error);
+        setLoading(false);
+      } else {
+        syncSession(session);
+      }
+    });
+
+    // Listen for sign-in / sign-out events
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      syncSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return { u_loading, error, session, user, isAdmin };

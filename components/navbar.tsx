@@ -18,7 +18,6 @@ import { Menu, X, Search, Bell, User } from "lucide-react";
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, u_loading, isAdmin } = useUser();
-  console.log("is admin", isAdmin);
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -104,11 +103,6 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>User Menu</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="w-full">
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/settings" className="w-full">
                       Settings

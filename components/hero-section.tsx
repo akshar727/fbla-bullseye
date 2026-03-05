@@ -57,7 +57,7 @@ export function HeroSection() {
       {/* Centered hero content - on top of marquee */}
       <div className="relative z-10 flex flex-col items-center text-center gap-8 max-w-6xl mx-auto px-6">
         {/* Typing animation headline */}
-        <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-4">
+        <h1 className="text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-4">
           {"Find your "}
           <span className="inline-block min-w-[3ch]">
             <TypingAnimation

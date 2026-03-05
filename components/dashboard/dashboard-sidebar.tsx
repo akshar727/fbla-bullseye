@@ -4,11 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import {
-  LayoutDashboard,
-  Users,
-  Package,
   FileCheck,
   Backpack,
+  Files,
   FileClock,
   Database,
 } from "lucide-react";
@@ -28,9 +26,9 @@ import {
 } from "@/components/ui/sidebar";
 const dashboardNav = [
   {
-    title: "Dashboard",
+    title: "Reported Found Items",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    icon: Backpack,
   },
 ];
 
@@ -42,13 +40,8 @@ const databaseNav = [
   },
   {
     title: "Claims in Progress",
-    href: "/dashboard/progress",
+    href: "/dashboard/ongoing",
     icon: FileClock,
-  },
-  {
-    title: "Reported Found Items",
-    href: "/dashboard/found",
-    icon: Backpack,
   },
 ];
 
@@ -81,8 +74,8 @@ export function DashboardSidebar() {
         {/* Database */}
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Database className="size-3.5 mr-1.5" />
-            Database
+            <Files className="size-3.5 mr-1.5" />
+            Claims
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

@@ -12,10 +12,13 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTrigger,
   DialogTitle,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import type { ItemResponse } from "@/lib/types";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -39,6 +42,9 @@ export default function ItemPage({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [markFoundLoading, setMarkFoundLoading] = useState(false);
   const [confirmMarkFound, setConfirmMarkFound] = useState(false);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquiryMessage, setInquiryMessage] = useState("");
+  const [inquiryLoading, setInquiryLoading] = useState(false);
 
   useEffect(() => {
     params.then((p) => setItemId(p.itemId));
@@ -230,12 +236,17 @@ export default function ItemPage({
           <div className="pt-2 space-y-2">
             {/* Visitor / non-owner: show Claim button */}
             {!isOwner && item.status === "unclaimed" && (
-              <Button
-                className="w-full"
-                onClick={() => router.push(`/claim/${item.id}`)}
-              >
-                Claim This Item
-              </Button>
+              <>
+                <Button
+                  className="w-full"
+                  onClick={() => router.push(`/claim/${item.id}`)}
+                >
+                  Claim This Item
+                </Button>
+                <Button className="w-full" onClick={() => setInquiryOpen(true)}>
+                  Inquire for Information
+                </Button>
+              </>
             )}
 
             {/* Owner actions */}
@@ -271,6 +282,82 @@ export default function ItemPage({
           </div>
         </div>
       </div>
+      {/* Item Inquiry dialog */}
+      <Dialog
+        open={inquiryOpen}
+        onOpenChange={(open) => {
+          setInquiryOpen(open);
+          if (!open) setInquiryMessage("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Item Inquiry Request</DialogTitle>
+            <DialogDescription>
+              Ask any questions that would help you determine whether this is
+              your item — for example, details about distinguishing features,
+              contents, or where exactly it was found.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="inquiry-message">Your message</Label>
+            <Textarea
+              id="inquiry-message"
+              placeholder="e.g. Does the bag have a small keychain attached? Was anything inside it when found?"
+              className="min-h-[120px]"
+              value={inquiryMessage}
+              onChange={(e) => setInquiryMessage(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Your message will be sent to the person who posted this item.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setInquiryOpen(false);
+                setInquiryMessage("");
+              }}
+            >
+              Cancel
+            </Button>
+            <LoadingButton
+              loading={inquiryLoading}
+              disabled={!inquiryMessage.trim()}
+              onClick={async () => {
+                if (!itemId) return;
+                setInquiryLoading(true);
+                try {
+                  const res = await fetch("/api/inquiry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      inquiry_text: inquiryMessage,
+                      inquired_item: itemId,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) {
+                    toast.error(data?.error ?? "Failed to send inquiry.");
+                  } else {
+                    toast.success("Inquiry sent!");
+                    setInquiryOpen(false);
+                    setInquiryMessage("");
+                  }
+                } catch {
+                  toast.error("An unexpected error occurred.");
+                } finally {
+                  setInquiryLoading(false);
+                }
+              }}
+            >
+              Submit
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Mark as Found confirmation dialog */}
       <Dialog open={confirmMarkFound} onOpenChange={setConfirmMarkFound}>
         <DialogContent>

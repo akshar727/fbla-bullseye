@@ -15,24 +15,14 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { SidebarUser } from "./sidebar-user";
 
 const dashboardNav = [
   {
@@ -88,9 +78,7 @@ export function AdminSidebar() {
 
         {/* Database */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            Database
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Database</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {databaseNav.map((item) => (
@@ -107,23 +95,6 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarUser
-          user={{
-            name:
-              user?.user_metadata?.full_name ||
-              user?.user_metadata?.name ||
-              user?.email ||
-              "Admin User",
-            email: user?.email || "admin@bullseye.app",
-            avatar:
-              user?.user_metadata?.avatar_url ||
-              user?.user_metadata?.picture ||
-              "",
-          }}
-        />
-      </SidebarFooter>
     </Sidebar>
   );
 }
