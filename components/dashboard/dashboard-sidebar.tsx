@@ -8,8 +8,9 @@ import {
   Users,
   Package,
   FileCheck,
+  Backpack,
+  FileClock,
   Database,
-  ChevronUp,
 } from "lucide-react";
 
 import {
@@ -25,38 +26,29 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-// import { SidebarUser } from "./sidebar-user";
-
 const dashboardNav = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
 ];
 
 const databaseNav = [
   {
-    title: "Users",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
-    title: "Items",
-    href: "/admin/items",
-    icon: Package,
-  },
-  {
-    title: "Claims",
-    href: "/admin/claims",
+    title: "Previous Claims",
+    href: "/dashboard/previous",
     icon: FileCheck,
+  },
+  {
+    title: "Claims in Progress",
+    href: "/dashboard/progress",
+    icon: FileClock,
+  },
+  {
+    title: "Reported Found Items",
+    href: "/dashboard/found",
+    icon: Backpack,
   },
 ];
 
