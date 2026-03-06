@@ -1,22 +1,10 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
 import { UserResponse } from "./types";
 import nodemailer from "nodemailer";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-import { createClient as superCreateClient } from "@supabase/supabase-js";
-
-export const supabaseAdmin = superCreateClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  },
-);
-
-export async function notify(userId: string,header: string, message: string) {
+export async function notify(userId: string, header: string, message: string) {
+  const supabaseAdmin = createAdminClient();
 
   const { data, error }: { data: UserResponse | null; error: any } =
     await supabaseAdmin.from("users").select("*").eq("id", userId).single();
