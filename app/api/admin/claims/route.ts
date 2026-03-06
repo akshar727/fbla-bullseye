@@ -12,6 +12,7 @@ export async function GET() {
       id,
       claimant,
       extra_descriptions,
+      proof_of_ownerships,
       created_at,
       claimed_item (
         id,
@@ -49,4 +50,56 @@ export async function DELETE(request: Request) {
   }
 
   return NextResponse.json({ success: true, deleted: ids.length });
+}
+
+export async function PATCH(request: Request) {
+  const { supabase, errorResponse } = await requireAdmin();
+  if (errorResponse) return errorResponse;
+
+  const body = await request.json();
+  const { id, action } = body;
+
+  if (!id || !action || !["accept", "deny"].includes(action)) {
+    return NextResponse.json(
+      { error: "id and action ('accept' or 'deny') are required" },
+      { status: 400 },
+    );
+  }
+
+  const { data: claim, error: fetchError } = await supabase
+    .from("claims")
+    .select("id, claimant, claimed_item")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !claim) {
+    return NextResponse.json({ error: "Claim not found" }, { status: 404 });
+  }
+
+  if (action === "accept") {
+    const { error: updateError } = await supabase
+      .from("items")
+      .update({
+        claimed_by: claim.claimant,
+        status: "claimed",
+        date_returned: new Date().toISOString(),
+      })
+      .eq("id", claim.claimed_item);
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+  } else {
+    // deny — delete the claim so it disappears from the user's ongoing claims
+    const { error: deleteError } = await supabase
+      .from("claims")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ success: true, action });
 }

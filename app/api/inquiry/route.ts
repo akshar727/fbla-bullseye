@@ -90,6 +90,7 @@ export async function POST(request: Request) {
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
+  console.log("notifyimng");
   await notify(
     item.posted_by,
     "New inquiry for your item",
