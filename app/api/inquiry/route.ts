@@ -1,3 +1,4 @@
+import { notify } from "@/lib/emails";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -67,6 +68,18 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  const { data: item, error: itemError } = await supabase
+    .from("items")
+    .select("*, posted_by:users!items_posted_by_fkey (id, name)")
+    .eq("id", inquired_item)
+    .single();
+
+  if (itemError || !item) {
+    return NextResponse.json(
+      { error: "Inquired item not found" },
+      { status: 404 },
+    );
+  }
 
   const { error: insertError } = await supabase.from("inquiries").insert({
     inquirer: user.id,
@@ -77,6 +90,11 @@ export async function POST(request: Request) {
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
+  await notify(
+    item.posted_by,
+    "New inquiry for your item",
+    `Someone has inquired about your item "${item.name}"`,
+  );
 
   return NextResponse.json(
     { message: "Inquiry submitted successfully" },

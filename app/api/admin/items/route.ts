@@ -1,56 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return {
-      supabase,
-      user: null,
-      errorResponse: NextResponse.json(
-        { error: "Unauthorized - Please log in" },
-        { status: 401 },
-      ),
-    };
-  }
-
-  const { data, error: userError } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (userError) {
-    return {
-      supabase,
-      user,
-      errorResponse: NextResponse.json(
-        { error: "Error fetching user role" },
-        { status: 500 },
-      ),
-    };
-  }
-
-  const isAdmin = data?.role === "admin";
-  if (!isAdmin) {
-    return {
-      supabase,
-      user,
-      errorResponse: NextResponse.json(
-        { error: "Forbidden - Admin access required" },
-        { status: 403 },
-      ),
-    };
-  }
-
-  return { supabase, user, errorResponse: null as NextResponse | null };
-}
+import { requireAdmin } from "@/lib/admin-guard";
 
 export async function GET() {
   const { supabase, errorResponse } = await requireAdmin();

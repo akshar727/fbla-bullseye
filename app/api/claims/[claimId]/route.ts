@@ -1,5 +1,6 @@
 import type { ClaimResponse } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
+import { notify } from "@/lib/emails";
 
 export async function GET(
   request: Request,
@@ -165,7 +166,13 @@ export async function PATCH(
         },
       );
     }
-
+    await notify(
+      claim.claimant,
+      "Your claim was approved for " + claim.claimed_item.name,
+      'Your claim on the item "' +
+        claim.claimed_item.name +
+        '" was approved by the finder.',
+    );
     // Mark the item as claimed
     const { error: itemError } = await supabase
       .from("items")

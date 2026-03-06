@@ -5,19 +5,11 @@ export async function GET() {
   const { supabase, errorResponse } = await requireAdmin();
   if (errorResponse) return errorResponse;
 
-  const { data: claims, error } = await supabase
-    .from("claims")
+  const { data: inquiries, error } = await supabase
+    .from("inquiries")
     .select(
       `
-      id,
-      claimant,
-      extra_descriptions,
-      created_at,
-      claimed_item (
-        id,
-        name,
-        status
-      )
+      *, inquirer(id,name, email), inquired_item(id,name)
     `,
     )
     .order("created_at", { ascending: false });
@@ -26,7 +18,7 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(claims);
+  return NextResponse.json(inquiries);
 }
 
 export async function DELETE(request: Request) {
@@ -38,12 +30,12 @@ export async function DELETE(request: Request) {
 
   if (ids.length === 0) {
     return NextResponse.json(
-      { error: "At least one claim id is required" },
+      { error: "At least one inquiry id is required" },
       { status: 400 },
     );
   }
 
-  const { error } = await supabase.from("claims").delete().in("id", ids);
+  const { error } = await supabase.from("inquiries").delete().in("id", ids);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

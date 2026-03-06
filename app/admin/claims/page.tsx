@@ -142,6 +142,7 @@ export default function ClaimsPage() {
         data={claims}
         addFields={addFields}
         searchableKeys={["extra_descriptions"]}
+        // @ts-ignore
         onDelete={handleDeleteClaims}
       />
     </div>

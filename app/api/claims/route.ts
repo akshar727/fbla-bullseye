@@ -1,3 +1,4 @@
+import { notify } from "@/lib/emails";
 import { createClient } from "@/lib/supabase/server";
 import { ItemResponse } from "@/lib/types";
 import { NextResponse } from "next/server";
@@ -95,6 +96,13 @@ export async function POST(request: Request) {
     } = supabase.storage.from("claim_images").getPublicUrl(uploadData.path);
 
     proofUrls.push(publicUrl);
+    await notify(
+      item.posted_by.id,
+      "New claim on your item: " + item.name,
+      'Hi, someone has submitted a claim on your lost item "' +
+        item.name +
+        '."',
+    );
   }
 
   const { error: claimError } = await supabase.from("claims").insert({

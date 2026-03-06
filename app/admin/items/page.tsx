@@ -174,6 +174,7 @@ export default function ItemsPage() {
         addFields={addFields}
         searchableKeys={["name", "category", "last_location"]}
         onAdd={handleAddItem}
+        // @ts-ignore
         onDelete={handleDeleteItems}
       />
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -13,11 +13,76 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Menu, X, Search, Bell, User } from "lucide-react";
+import { Badge } from "./ui/badge";
+
+type Notification = {
+  id: string;
+  header: string;
+  message: string;
+  created_at: string;
+  read: boolean;
+};
+
+function NotificationList({
+  notifications,
+}: {
+  notifications: Notification[];
+}) {
+  return (
+    <div className="divide-y">
+      {notifications.map((n) => (
+        <div
+          key={n.id}
+          className={`px-4 py-3 space-y-0.5 ${!n.read ? "bg-muted/50" : ""}`}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-medium leading-snug">{n.header}</p>
+            {!n.read && (
+              <span className="mt-1 size-2 shrink-0 rounded-full bg-blue-500" />
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground leading-snug">
+            {n.message}
+          </p>
+          <p className="text-xs text-muted-foreground/60">
+            {new Date(n.created_at).toLocaleString(undefined, {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user, u_loading, isAdmin } = useUser();
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/notifications")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setNotifications(data);
+      })
+      .catch(() => {});
+  }, [user]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -50,12 +115,52 @@ export function Navbar() {
 
           {/* Right Section - Actions */}
           <div className="flex items-center gap-4">
-            {/* Notifications Placeholder */}
+            {/* Notifications */}
             {user && (
-              <Button variant="ghost" size="icon" className="hidden md:flex">
-                <Bell className="h-5 w-5" />
-                <span className="sr-only">Notifications</span>
-              </Button>
+              <Popover open={notifOpen} onOpenChange={setNotifOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden md:flex"
+                  >
+                    <span className="sr-only">Notifications</span>
+                    <div className="relative w-fit">
+                      <Avatar className="size-9 rounded-sm">
+                        <AvatarFallback className="rounded-sm">
+                          <Bell className="size-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {unreadCount > 0 && (
+                        <Badge className="absolute -top-2.5 -right-2.5 h-5 min-w-5 px-1 tabular-nums bg-red-500 text-white">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-0">
+                  <div className="flex items-center justify-between px-4 py-3 border-b">
+                    <p className="text-sm font-semibold">Notifications</p>
+                    {unreadCount > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      No notifications yet.
+                    </div>
+                  ) : notifications.length > 4 ? (
+                    <ScrollArea className="h-80">
+                      <NotificationList notifications={notifications} />
+                    </ScrollArea>
+                  ) : (
+                    <NotificationList notifications={notifications} />
+                  )}
+                </PopoverContent>
+              </Popover>
             )}
 
             {/* CTA Button Placeholder */}

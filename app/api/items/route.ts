@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { notify } from "@/lib/emails";
 
 export async function GET() {
   const supabase = await createClient();

@@ -160,18 +160,26 @@ export default function DashboardPage() {
 
               <CardContent>
                 {item.status === "claimed" && item.claimed_by ? (
-                  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
-                    <p className="text-sm font-medium text-emerald-900">
-                      ✓ Claimed
-                    </p>
-                    <p className="text-sm text-emerald-700 mt-1">
-                      <span className="font-medium">Name:</span>{" "}
-                      {item.claimed_by.name}
-                    </p>
-                    <p className="text-sm text-emerald-700">
-                      <span className="font-medium">Email:</span>{" "}
-                      {item.claimed_by.email}
-                    </p>
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-900">
+                        ✓ Claimed
+                      </p>
+                      <p className="text-sm text-emerald-700 mt-1">
+                        <span className="font-medium">Claimant Name:</span>{" "}
+                        {item.claimed_by.name}
+                      </p>
+                    </div>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        // TODO: Open chat with {item.claimed_by.name}
+                      }}
+                    >
+                      Open Chat with {item.claimed_by.name}
+                    </Button>
                   </div>
                 ) : item.claims.length === 0 ? (
                   <p className="text-sm text-muted-foreground italic">
