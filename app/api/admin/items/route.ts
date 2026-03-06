@@ -16,6 +16,7 @@ export async function GET() {
       status,
       last_location,
       date_lost,
+      image_urls,
       created_at,
       posted_by (id, name)
     `,

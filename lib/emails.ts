@@ -1,31 +1,36 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
 import { UserResponse } from "./types";
 import nodemailer from "nodemailer";
 
 import { createClient as superCreateClient } from "@supabase/supabase-js";
 
-export const supabaseAdmin = superCreateClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
+export async function notify(
+  user: { id: string; name: string },
+  header: string,
+  message: string,
+) {
+  const supabaseAdmin = await superCreateClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
     },
-  },
-);
-
-export async function notify(userId: string,header: string, message: string) {
-
+  );
+  console.log("create client; ", user, header, message);
   const { data, error }: { data: UserResponse | null; error: any } =
-    await supabaseAdmin.from("users").select("*").eq("id", userId).single();
-  if (error) return undefined;
+    await supabaseAdmin.from("users").select("*").eq("id", user.id).single();
+  if (error) {
+    console.error("Failed to fetch user for notification:", error);
+    return;
+  }
 
   await supabaseAdmin.from("notifications").insert({
     header: header,
     message: message,
-    notified_user: userId,
+    notified_user: user.id,
   });
   if (data?.send_email_notifs) {
     const transporter = nodemailer.createTransport({

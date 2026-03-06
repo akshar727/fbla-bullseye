@@ -62,22 +62,7 @@ export function AdminSidebar() {
 
   return (
     <Sidebar variant="inset">
-      {/* Header */}
-      <SidebarHeader>
-        <div className="flex items-center gap-2.5 px-2 py-1.5">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <ShieldCheck className="size-4" />
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="text-sm font-semibold">Bullseye</span>
-            <span className="text-xs text-muted-foreground">Admin Panel</span>
-          </div>
-        </div>
-      </SidebarHeader>
-
-      <SidebarSeparator />
-
-      <SidebarContent>
+      <SidebarContent style={{ paddingTop: "75px" }}>
         {/* Main */}
         <SidebarGroup>
           <SidebarGroupContent>
@@ -120,34 +105,6 @@ export function AdminSidebar() {
       </SidebarContent>
 
       <SidebarSeparator />
-
-      {/* Footer — user info + logout */}
-      <SidebarFooter>
-        <div className="flex items-center gap-3 px-2 py-2">
-          <Avatar className="size-8">
-            <AvatarImage src={avatar} />
-            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col min-w-0 flex-1 leading-none">
-            <span className="text-sm font-medium truncate">{displayName}</span>
-            <span className="text-xs text-muted-foreground truncate">
-              {email}
-            </span>
-          </div>
-          <button
-            onClick={async () => {
-              const { createClient } = await import("@/lib/supabase/client");
-              await createClient().auth.signOut();
-              window.location.href = "/";
-            }}
-            className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
-            title="Logout"
-          >
-            <LogOut className="size-4" />
-          </button>
-        </div>
-      </SidebarFooter>
-
       <SidebarRail />
     </Sidebar>
   );
