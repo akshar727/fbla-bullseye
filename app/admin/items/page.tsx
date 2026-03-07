@@ -225,6 +225,7 @@ export default function ItemsPage() {
         onAdd={handleAddItem}
         // @ts-ignore
         onDelete={handleDeleteItems}
+        disableAdd
       />
 
       {/* Item Detail Dialog */}

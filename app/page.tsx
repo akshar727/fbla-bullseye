@@ -1,4 +1,5 @@
 "use client";
+import Footer from "@/components/footer";
 import { HeroSection } from "@/components/hero-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,7 @@ export default function Home() {
           </CardContent>
         </Card>
       </main>
+      <Footer />
     </>
   );
 }

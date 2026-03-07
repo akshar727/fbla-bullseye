@@ -20,6 +20,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import type { ItemResponse } from "@/lib/types";
+import Footer from "@/components/footer";
 
 const STATUS_STYLES: Record<string, string> = {
   unclaimed: "bg-red-100 text-red-700 border-red-200",
@@ -137,259 +138,282 @@ export default function ItemPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Back */}
-      <Button
-        variant="ghost"
-        className="mb-4 -ml-2"
-        onClick={() => router.back()}
-      >
-        ← Back
-      </Button>
+    <>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Back */}
+        <Button
+          variant="ghost"
+          className="mb-4 -ml-2"
+          onClick={() => router.back()}
+        >
+          ← Back
+        </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Image gallery */}
-        <div className="space-y-2">
-          {item.image_urls && item.image_urls.length > 0 ? (
-            <>
-              <img
-                src={item.image_urls[activeImage]}
-                alt={item.name}
-                className="w-full aspect-square object-cover rounded-xl border"
-              />
-              {item.image_urls.length > 1 && (
-                <div className="flex gap-2 flex-wrap">
-                  {item.image_urls.map((url, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveImage(i)}
-                      className={`w-16 h-16 rounded-md border-2 overflow-hidden transition-all ${
-                        i === activeImage
-                          ? "border-primary"
-                          : "border-transparent opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={url}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-full aspect-square rounded-xl border bg-muted flex items-center justify-center text-muted-foreground">
-              No images
-            </div>
-          )}
-        </div>
-
-        {/* Details */}
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold flex-1">{item.name}</h1>
-            <span
-              className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${STATUS_STYLES[item.status] ?? ""}`}
-            >
-              {item.status}
-            </span>
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            {getCategoryLabel(item.category)}
-          </p>
-
-          {item.description && (
-            <p className="text-sm leading-relaxed">{item.description}</p>
-          )}
-
-          <div className="space-y-1 text-sm text-muted-foreground">
-            {item.last_location && (
-              <p>
-                Last Location:{" "}
-                <span className="text-foreground">{item.last_location}</span>
-              </p>
-            )}
-            {item.date_lost && (
-              <p>
-                Lost on{" "}
-                <span className="text-foreground">
-                  {new Date(item.date_lost).toLocaleDateString(undefined, {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </p>
-            )}
-            <p>
-              Posted by:{" "}
-              <span className="text-foreground">
-                {(item.posted_by as any)?.name ?? "someone"}
-              </span>
-            </p>
-          </div>
-
-          {/* Actions */}
-          <div className="pt-2 space-y-2">
-            {/* Visitor / non-owner: show Claim button */}
-            {!isOwner && item.status === "unclaimed" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Image gallery */}
+          <div className="space-y-2">
+            {item.image_urls && item.image_urls.length > 0 ? (
               <>
-                <Button
-                  className="w-full"
-                  onClick={() => router.push(`/claim/${item.id}`)}
-                >
-                  Claim This Item
-                </Button>
-                <Button className="w-full" onClick={() => setInquiryOpen(true)}>
-                  Inquire for Information
-                </Button>
-              </>
-            )}
-
-            {/* Owner actions */}
-            {isOwner && (
-              <div className="space-y-2">
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  onClick={() => router.push("/dashboard")}
-                >
-                  Manage Claims
-                </Button>
-                {item.status === "unclaimed" && (
-                  <LoadingButton
-                    className="w-full"
-                    variant="secondary"
-                    loading={markFoundLoading}
-                    onClick={() => setConfirmMarkFound(true)}
-                  >
-                    Mark as Found (No Claim)
-                  </LoadingButton>
+                <img
+                  src={item.image_urls[activeImage]}
+                  alt={item.name}
+                  className="w-full aspect-square object-cover rounded-xl border"
+                />
+                {item.image_urls.length > 1 && (
+                  <div className="flex gap-2 flex-wrap">
+                    {item.image_urls.map((url, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveImage(i)}
+                        className={`w-16 h-16 rounded-md border-2 overflow-hidden transition-all ${
+                          i === activeImage
+                            ? "border-primary"
+                            : "border-transparent opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 )}
-                <LoadingButton
-                  className="w-full"
-                  variant="destructive"
-                  loading={deleteLoading}
-                  onClick={handleDelete}
-                >
-                  Delete Listing
-                </LoadingButton>
+              </>
+            ) : (
+              <div className="w-full aspect-square rounded-xl border bg-muted flex items-center justify-center text-muted-foreground">
+                No images
               </div>
             )}
           </div>
-        </div>
-      </div>
-      {/* Item Inquiry dialog */}
-      <Dialog
-        open={inquiryOpen}
-        onOpenChange={(open) => {
-          setInquiryOpen(open);
-          if (!open) setInquiryMessage("");
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Item Inquiry Request</DialogTitle>
-            <DialogDescription>
-              Ask any questions that would help you determine whether this is
-              your item — for example, details about distinguishing features,
-              contents, or where exactly it was found.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="inquiry-message">Your message</Label>
-            <Textarea
-              id="inquiry-message"
-              placeholder="e.g. Does the bag have a small keychain attached? Was anything inside it when found?"
-              className="min-h-[120px]"
-              value={inquiryMessage}
-              onChange={(e) => setInquiryMessage(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Your message will be sent to the person who posted this item.
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setInquiryOpen(false);
-                setInquiryMessage("");
-              }}
-            >
-              Cancel
-            </Button>
-            <LoadingButton
-              loading={inquiryLoading}
-              disabled={!inquiryMessage.trim()}
-              onClick={async () => {
-                if (!itemId) return;
-                setInquiryLoading(true);
-                try {
-                  const res = await fetch("/api/inquiry", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      inquiry_text: inquiryMessage,
-                      inquired_item: itemId,
-                    }),
-                  });
-                  const data = await res.json();
-                  if (!res.ok) {
-                    toast.error(data?.error ?? "Failed to send inquiry.");
-                  } else {
-                    toast.success("Inquiry sent!");
-                    setInquiryOpen(false);
-                    setInquiryMessage("");
-                  }
-                } catch {
-                  toast.error("An unexpected error occurred.");
-                } finally {
-                  setInquiryLoading(false);
-                }
-              }}
-            >
-              Submit
-            </LoadingButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-      {/* Mark as Found confirmation dialog */}
-      <Dialog open={confirmMarkFound} onOpenChange={setConfirmMarkFound}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Mark as Found?</DialogTitle>
-            <DialogDescription>
-              This will mark the item as found without approving any pending
-              claims. Any existing claims will remain on record. This cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              disabled={markFoundLoading}
-              onClick={() => setConfirmMarkFound(false)}
-            >
-              Cancel
-            </Button>
-            <LoadingButton
-              variant="secondary"
-              loading={markFoundLoading}
-              onClick={async () => {
-                await handleMarkFound();
-                setConfirmMarkFound(false);
-              }}
-            >
-              Yes, Mark as Found
-            </LoadingButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          {/* Details */}
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold flex-1">{item.name}</h1>
+              <span
+                className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${STATUS_STYLES[item.status] ?? ""}`}
+              >
+                {item.status}
+              </span>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {getCategoryLabel(item.category)}
+            </p>
+
+            {item.description && (
+              <p className="text-sm leading-relaxed">{item.description}</p>
+            )}
+
+            <div className="space-y-1 text-sm text-muted-foreground">
+              {item.last_location && (
+                <p>
+                  Last Location:{" "}
+                  <span className="text-foreground">{item.last_location}</span>
+                </p>
+              )}
+              {item.date_lost && (
+                <p>
+                  Lost on{" "}
+                  <span className="text-foreground">
+                    {new Date(item.date_lost).toLocaleDateString(undefined, {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </p>
+              )}
+              <p>
+                Posted by:{" "}
+                <span className="text-foreground">
+                  {(item.posted_by as any)?.name ?? "someone"}
+                </span>
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-2 space-y-2">
+              {/* Visitor / non-owner: show Claim button */}
+              {!isOwner && item.status === "unclaimed" && (
+                <>
+                  <Button
+                    className="w-full"
+                    disabled={!user}
+                    onClick={() => router.push(`/claim/${item.id}`)}
+                  >
+                    Claim This Item
+                  </Button>
+                  <Button
+                    className="w-full"
+                    disabled={!user}
+                    onClick={() => setInquiryOpen(true)}
+                  >
+                    Inquire for Information
+                  </Button>
+                  {!user && (
+                    <p className="text-xs text-center text-muted-foreground">
+                      <button
+                        className="underline underline-offset-4 text-foreground"
+                        onClick={() =>
+                          router.push(
+                            `/login?next=${encodeURIComponent(`/item/${itemId}`)}`,
+                          )
+                        }
+                      >
+                        Sign in
+                      </button>{" "}
+                      to claim or inquire about this item.
+                    </p>
+                  )}
+                </>
+              )}
+
+              {/* Owner actions */}
+              {isOwner && (
+                <div className="space-y-2">
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => router.push("/dashboard")}
+                  >
+                    Manage Claims
+                  </Button>
+                  {item.status === "unclaimed" && (
+                    <LoadingButton
+                      className="w-full"
+                      variant="secondary"
+                      loading={markFoundLoading}
+                      onClick={() => setConfirmMarkFound(true)}
+                    >
+                      Mark as Found (No Claim)
+                    </LoadingButton>
+                  )}
+                  <LoadingButton
+                    className="w-full"
+                    variant="destructive"
+                    loading={deleteLoading}
+                    onClick={handleDelete}
+                  >
+                    Delete Listing
+                  </LoadingButton>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Item Inquiry dialog */}
+        <Dialog
+          open={inquiryOpen}
+          onOpenChange={(open) => {
+            setInquiryOpen(open);
+            if (!open) setInquiryMessage("");
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Item Inquiry Request</DialogTitle>
+              <DialogDescription>
+                Ask any questions that would help you determine whether this is
+                your item — for example, details about distinguishing features,
+                contents, or where exactly it was found.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="inquiry-message">Your message</Label>
+              <Textarea
+                id="inquiry-message"
+                placeholder="e.g. Does the bag have a small keychain attached? Was anything inside it when found?"
+                className="min-h-[120px]"
+                value={inquiryMessage}
+                onChange={(e) => setInquiryMessage(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Your message will be sent to the person who posted this item.
+              </p>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setInquiryOpen(false);
+                  setInquiryMessage("");
+                }}
+              >
+                Cancel
+              </Button>
+              <LoadingButton
+                loading={inquiryLoading}
+                disabled={!inquiryMessage.trim()}
+                onClick={async () => {
+                  if (!itemId) return;
+                  setInquiryLoading(true);
+                  try {
+                    const res = await fetch("/api/inquiry", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        inquiry_text: inquiryMessage,
+                        inquired_item: itemId,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                      toast.error(data?.error ?? "Failed to send inquiry.");
+                    } else {
+                      toast.success("Inquiry sent!");
+                      setInquiryOpen(false);
+                      setInquiryMessage("");
+                    }
+                  } catch {
+                    toast.error("An unexpected error occurred.");
+                  } finally {
+                    setInquiryLoading(false);
+                  }
+                }}
+              >
+                Submit
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Mark as Found confirmation dialog */}
+        <Dialog open={confirmMarkFound} onOpenChange={setConfirmMarkFound}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark as Found?</DialogTitle>
+              <DialogDescription>
+                This will mark the item as found without approving any pending
+                claims. Any existing claims will remain on record. This cannot
+                be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                disabled={markFoundLoading}
+                onClick={() => setConfirmMarkFound(false)}
+              >
+                Cancel
+              </Button>
+              <LoadingButton
+                variant="secondary"
+                loading={markFoundLoading}
+                onClick={async () => {
+                  await handleMarkFound();
+                  setConfirmMarkFound(false);
+                }}
+              >
+                Yes, Mark as Found
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Footer />
+    </>
   );
 }

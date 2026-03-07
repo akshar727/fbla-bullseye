@@ -1,7 +1,10 @@
 import { notify } from "@/lib/emails";
 import { createClient } from "@/lib/supabase/server";
 import { ItemResponse } from "@/lib/types";
+import { after } from "next/server";
 import { NextResponse } from "next/server";
+import NewClaimEmail from "@/components/email/new-claim";
+import { render } from "@react-email/components";
 
 export async function GET() {
   const supabase = await createClient();
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
     error: itemError,
   }: { data: ItemResponse | null; error: any } = await supabase
     .from("items")
-    .select("*")
+    .select("*, posted_by(id, name)")
     .eq("id", itemId)
     .single();
 
@@ -96,14 +99,31 @@ export async function POST(request: Request) {
     } = supabase.storage.from("claim_images").getPublicUrl(uploadData.path);
 
     proofUrls.push(publicUrl);
-    await notify(
-      item.posted_by.id,
+  }
+  const { data: claimerName, error: claimerError } = await supabase
+    .from("users")
+    .select("name")
+    .eq("id", user.id)
+    .single();
+  if (claimerError) {
+    console.error("Error fetching claimer name:", claimerError);
+  }
+  const emailHtml = await render(
+    <NewClaimEmail
+      name={claimerName?.name.split(" ")[0] ?? "User"}
+      itemName={item.name}
+    />,
+  );
+  after(() =>
+    notify(
+      item.posted_by,
       "New claim on your item: " + item.name,
-      'Hi, someone has submitted a claim on your lost item "' +
+      'Someone has submitted a claim on your lost item "' +
         item.name +
         '."',
-    );
-  }
+      emailHtml,
+    ).catch((err) => console.error("Error sending notification email:", err)),
+  );
 
   const { error: claimError } = await supabase.from("claims").insert({
     claimant: user.id,

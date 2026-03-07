@@ -124,6 +124,7 @@ export default function InquiriesPage() {
         addFields={addFields}
         searchableKeys={["inquiry_text", "inquiry_response"]}
         onDelete={handleDeleteInquiries}
+        disableAdd
       />
     </div>
   );

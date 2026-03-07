@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/use-user";
 import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories";
 import { toast } from "sonner";
+import Footer from "@/components/footer";
 
 export default function LostPage() {
   const { user, u_loading } = useUser();
@@ -123,144 +124,147 @@ export default function LostPage() {
     }
   };
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-3xl">Report a Found Item</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="itemName">Item Name *</Label>
-              <Input
-                type="text"
-                id="itemName"
-                name="itemName"
-                value={formData.itemName}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Blue backpack"
-              />
-            </div>
+    <>
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-3xl">Report a Found Item</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="itemName">Item Name *</Label>
+                <Input
+                  type="text"
+                  id="itemName"
+                  name="itemName"
+                  value={formData.itemName}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., Blue backpack"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, category: value })
-                }
-                required
-              >
-                <SelectTrigger className="w-full" id="category">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  {CATEGORY_KEYS.map((key) => (
-                    <SelectItem key={key} value={key}>
-                      {CATEGORY_MAP[key]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category: value })
+                  }
+                  required
+                >
+                  <SelectTrigger className="w-full" id="category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {CATEGORY_KEYS.map((key) => (
+                      <SelectItem key={key} value={key}>
+                        {CATEGORY_MAP[key]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                rows={4}
-                placeholder="Provide detailed description of the lost item"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  rows={4}
+                  placeholder="Provide detailed description of the lost item"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Location Found *</Label>
-              <Input
-                type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Cafeteria, Room 101"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location Found *</Label>
+                <Input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., Cafeteria, Room 101"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dateTimeLost">Date & Time Found *</Label>
-              <Input
-                type="datetime-local"
-                id="dateTimeLost"
-                name="dateTimeLost"
-                value={formData.dateTimeLost}
-                onChange={handleChange}
-                required
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="dateTimeLost">Date & Time Found *</Label>
+                <Input
+                  type="datetime-local"
+                  id="dateTimeLost"
+                  name="dateTimeLost"
+                  value={formData.dateTimeLost}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="images">Upload Images (Optional)</Label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                id="images"
-                name="images"
-                onChange={handleImageChange}
-                accept="image/*"
-                multiple
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
+              <div className="space-y-2">
+                <Label htmlFor="images">Upload Images (Optional)</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  id="images"
+                  name="images"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {formData.images.length === 0
+                    ? "Choose images…"
+                    : `${formData.images.length} image${formData.images.length !== 1 ? "s" : ""}`}
+                </Button>
+                {formData.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {formData.images.map((file, i) => (
+                      <div key={i} className="relative group aspect-square">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-full object-cover rounded-md border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label={`Remove ${file.name}`}
+                        >
+                          ✕
+                        </button>
+                        <p className="text-xs text-muted-foreground truncate mt-1 px-0.5">
+                          {file.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <LoadingButton
+                type="submit"
                 className="w-full"
-                onClick={() => fileInputRef.current?.click()}
+                loading={isSubmitting}
               >
-                {formData.images.length === 0
-                  ? "Choose images…"
-                  : `${formData.images.length} image${formData.images.length !== 1 ? "s" : ""}`}
-              </Button>
-              {formData.images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {formData.images.map((file, i) => (
-                    <div key={i} className="relative group aspect-square">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="w-full h-full object-cover rounded-md border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(i)}
-                        className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity"
-                        aria-label={`Remove ${file.name}`}
-                      >
-                        ✕
-                      </button>
-                      <p className="text-xs text-muted-foreground truncate mt-1 px-0.5">
-                        {file.name}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <LoadingButton
-              type="submit"
-              className="w-full"
-              loading={isSubmitting}
-            >
-              Submit Found Item Report
-            </LoadingButton>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                Submit Found Item Report
+              </LoadingButton>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+      <Footer />
+    </>
   );
 }

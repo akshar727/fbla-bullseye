@@ -30,6 +30,12 @@ export async function GET() {
         extra_descriptions,
         proof_of_ownerships,
         created_at
+      ),
+      inquiries (
+        id,
+        inquiry_text,
+        created_at,
+        inquirer(id, name, email)
       )
     `,
     )

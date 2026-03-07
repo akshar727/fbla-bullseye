@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
+import log from "@/lib/dbLogger";
 
 export async function GET() {
   const { supabase, errorResponse } = await requireAdmin();
@@ -10,7 +11,7 @@ export async function GET() {
     .select(
       `
       id,
-      claimant,
+      claimant (id, name, email),
       extra_descriptions,
       proof_of_ownerships,
       created_at,
@@ -66,9 +67,21 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const { data: claim, error: fetchError } = await supabase
+  const {
+    data: claim,
+    error: fetchError,
+  }: {
+    data: {
+      id: string;
+      claimant: { id: string; name: string; email: string };
+      claimed_item: { id: string; name: string };
+    } | null;
+    error: any;
+  } = await supabase
     .from("claims")
-    .select("id, claimant, claimed_item")
+    .select(
+      "id, claimant (id, name, email), claimed_item:items!claim_claimed_item_fkey (id, name)",
+    )
     .eq("id", id)
     .single();
 
@@ -80,15 +93,22 @@ export async function PATCH(request: Request) {
     const { error: updateError } = await supabase
       .from("items")
       .update({
-        claimed_by: claim.claimant,
+        claimed_by: claim.claimant.id,
         status: "claimed",
         date_returned: new Date().toISOString(),
       })
-      .eq("id", claim.claimed_item);
+      .eq("id", claim.claimed_item.id);
 
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
+
+    after(() =>
+      log(
+        "Claim approved",
+        `${claim.claimed_item.name} claimed by ${claim.claimant.name}`,
+      ).catch(console.error),
+    );
   } else {
     // deny — delete the claim so it disappears from the user's ongoing claims
     const { error: deleteError } = await supabase

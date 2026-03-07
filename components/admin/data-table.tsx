@@ -65,6 +65,7 @@ interface DataTableProps<T extends { id: string | number }> {
   onAdd?: (item: Record<string, string>) => void;
   onDelete?: (ids: (string | number)[]) => void;
   addFields?: FieldDef[];
+  disableAdd?: boolean;
   searchableKeys?: (keyof T & string)[];
   pageSize?: number;
 }
@@ -77,6 +78,7 @@ export function DataTable<T extends { id: string | number }>({
   onAdd,
   onDelete,
   addFields,
+  disableAdd = false,
   searchableKeys,
   pageSize: defaultPageSize = 10,
 }: DataTableProps<T>) {
@@ -241,7 +243,7 @@ export function DataTable<T extends { id: string | number }>({
               </DialogContent>
             </Dialog>
           )}
-          {addFields && (
+          {addFields && !disableAdd && (
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">

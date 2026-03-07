@@ -27,7 +27,7 @@ type Notification = {
   header: string;
   message: string;
   created_at: string;
-  read: boolean;
+  viewed: boolean;
 };
 
 function NotificationList({
@@ -40,11 +40,11 @@ function NotificationList({
       {notifications.map((n) => (
         <div
           key={n.id}
-          className={`px-4 py-3 space-y-0.5 ${!n.read ? "bg-muted/50" : ""}`}
+          className={`px-4 py-3 space-y-0.5 ${!n.viewed ? "bg-muted/50" : ""}`}
         >
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-medium leading-snug">{n.header}</p>
-            {!n.read && (
+            {!n.viewed && (
               <span className="mt-1 size-2 shrink-0 rounded-full bg-blue-500" />
             )}
           </div>
@@ -81,7 +81,23 @@ export function Navbar() {
       .catch(() => {});
   }, [user]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.viewed).length;
+
+  const markAllRead = async () => {
+    const unreadIds = notifications.filter((n) => !n.viewed).map((n) => n.id);
+    if (unreadIds.length === 0) return;
+    setNotifications((prev) => prev.map((n) => ({ ...n, viewed: true })));
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: unreadIds }),
+    }).catch(() => {});
+  };
+
+  const handleNotifOpenChange = (open: boolean) => {
+    setNotifOpen(open);
+    if (open) markAllRead();
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -117,7 +133,7 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             {/* Notifications */}
             {user && (
-              <Popover open={notifOpen} onOpenChange={setNotifOpen}>
+              <Popover open={notifOpen} onOpenChange={handleNotifOpenChange}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"

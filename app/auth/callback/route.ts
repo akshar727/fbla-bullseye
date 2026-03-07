@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   // Get the authorization code and the 'next' redirect path
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/browse";
+  const role = searchParams.get("role");
 
   if (code) {
     // Create a Supabase client
@@ -18,6 +19,12 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      // Staff Google OAuth — redirect to the code verification step
+      if (role === "staff") {
+        return NextResponse.redirect(
+          `${origin}/signup/complete?next=${encodeURIComponent(next)}`,
+        );
+      }
       // If successful, redirect to the 'next' path or home
       return NextResponse.redirect(`${origin}${next}`);
     }

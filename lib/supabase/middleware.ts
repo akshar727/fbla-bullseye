@@ -49,13 +49,24 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Public routes accessible without authentication
+  const publicPaths = [
+    "/login",
+    "/signup",
+    "/auth",
+    "/tos",
+    "/item/",
+    "/browse",
+    "/api/",
+    "/api/items",
+    "/api/item/",
+  ];
+  const isPublic = publicPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p),
+  );
+
   // Redirect unauthenticated users to sign-in page
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/signup") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);

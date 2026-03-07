@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -33,9 +34,21 @@ type ClaimedByUser = {
   email: string;
 };
 
+type InquirySummary = {
+  id: string;
+  inquiry_text: string;
+  created_at: string;
+  inquirer: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 type ItemWithClaims = ItemResponse & {
   claims: ClaimSummary[];
   claimed_by?: ClaimedByUser | null;
+  inquiries: InquirySummary[];
 };
 
 export default function DashboardPage() {
@@ -52,6 +65,10 @@ export default function DashboardPage() {
   const [actionLoading, setActionLoading] = useState<"approve" | "deny" | null>(
     null,
   );
+
+  // Inquiry reply state
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
+  const [replyLoading, setReplyLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (!u_loading && !user) router.replace("/");
@@ -95,6 +112,17 @@ export default function DashboardPage() {
       toast.error("An unexpected error occurred.");
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleReply = async (inquiryId: string) => {
+    const text = replyText[inquiryId]?.trim();
+    if (!text) return;
+    setReplyLoading(inquiryId);
+    try {
+      // TODO: send reply
+    } finally {
+      setReplyLoading(null);
     }
   };
 
@@ -214,6 +242,66 @@ export default function DashboardPage() {
                         >
                           Review
                         </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Inquiries section */}
+                {item.inquiries?.length > 0 && (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-sm font-medium">
+                      {item.inquiries.length} inquir
+                      {item.inquiries.length !== 1 ? "ies" : "y"}
+                    </p>
+                    {item.inquiries.map((inquiry) => (
+                      <div
+                        key={inquiry.id}
+                        className="rounded-md border px-3 py-3 space-y-3 text-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-medium">
+                              {inquiry.inquirer.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {inquiry.inquirer.email} ·{" "}
+                              {new Date(inquiry.created_at).toLocaleDateString(
+                                undefined,
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground whitespace-pre-wrap">
+                          {inquiry.inquiry_text}
+                        </p>
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Write a response…"
+                            rows={2}
+                            value={replyText[inquiry.id] ?? ""}
+                            onChange={(e) =>
+                              setReplyText((prev) => ({
+                                ...prev,
+                                [inquiry.id]: e.target.value,
+                              }))
+                            }
+                          />
+                          <LoadingButton
+                            size="sm"
+                            loading={replyLoading === inquiry.id}
+                            disabled={
+                              !replyText[inquiry.id]?.trim() || !!replyLoading
+                            }
+                            onClick={() => handleReply(inquiry.id)}
+                          >
+                            Send Reply
+                          </LoadingButton>
+                        </div>
                       </div>
                     ))}
                   </div>

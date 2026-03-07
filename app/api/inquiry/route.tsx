@@ -1,7 +1,8 @@
 import { notify } from "@/lib/emails";
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
-
+import { NextResponse, after } from "next/server";
+import { render } from "@react-email/components";
+import NewInquiryEmail from "@/components/email/new-inquiry";
 /**
  * GET /api/inquiry
  * Returns all inquiry rows where the authenticated user is the inquirer.
@@ -86,15 +87,38 @@ export async function POST(request: Request) {
     inquired_item,
     inquiry_text: inquiry_text.trim(),
   });
+  const { data: inquirerName, error: inquirerError } = await supabase
+    .from("users")
+    .select("name")
+    .eq("id", user.id)
+    .single();
 
-  if (insertError) {
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
+  if (insertError || inquirerError) {
+    return NextResponse.json(
+      {
+        error: insertError
+          ? insertError.message
+          : inquirerError
+            ? inquirerError.message
+            : "",
+      },
+      { status: 500 },
+    );
   }
   console.log("notifyimng");
-  await notify(
-    item.posted_by,
-    "New inquiry for your item",
-    `Someone has inquired about your item "${item.name}"`,
+  const emailHtml = await render(
+    <NewInquiryEmail
+      name={inquirerName?.name.split(" ")[0] ?? "User"}
+      itemName={item.name}
+    />,
+  );
+  after(() =>
+    notify(
+      item.posted_by,
+      "New inquiry for your item",
+      `${inquirerName?.name.split(" ")[0] ?? "User"} has inquired about your item "${item.name}"`,
+      emailHtml,
+    ).catch((err) => console.error("Error sending notification email:", err)),
   );
 
   return NextResponse.json(

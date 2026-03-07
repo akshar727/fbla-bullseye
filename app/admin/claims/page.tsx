@@ -20,7 +20,11 @@ import { Eye, CheckCircle, XCircle } from "lucide-react";
 
 interface Claim {
   id: string;
-  claimant: string;
+  claimant: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
   extra_descriptions: string;
   proof_of_ownerships: string[];
   created_at: string;
@@ -122,10 +126,10 @@ export default function ClaimsPage() {
     },
     {
       key: "claimant",
-      label: "Claimant ID",
+      label: "Claimant",
       render: (value) => {
-        const id = String(value);
-        return id.substring(0, 8) + "...";
+        const claimant = value as Claim["claimant"];
+        return claimant?.name || "Unknown";
       },
     },
     {
@@ -201,6 +205,7 @@ export default function ClaimsPage() {
         searchableKeys={["extra_descriptions"]}
         // @ts-ignore
         onDelete={handleDeleteClaims}
+        disableAdd
       />
 
       {/* Claim Detail Dialog */}
@@ -232,11 +237,9 @@ export default function ClaimsPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-muted-foreground">
-                    Claimant ID
-                  </p>
+                  <p className="font-medium text-muted-foreground">Claimant</p>
                   <p className="font-mono text-xs break-all">
-                    {viewClaim.claimant}
+                    {viewClaim.claimant?.name || "Unknown"}
                   </p>
                 </div>
                 <div>
@@ -292,7 +295,7 @@ export default function ClaimsPage() {
             >
               Close
             </Button>
-            {viewClaim && viewClaim.claimed_item?.status !== "claimed" && (
+            {viewClaim && (
               <>
                 <Button
                   variant="destructive"
@@ -305,7 +308,10 @@ export default function ClaimsPage() {
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white"
                   onClick={() => handleClaimAction("accept")}
-                  disabled={actionLoading}
+                  disabled={
+                    actionLoading ||
+                    viewClaim.claimed_item?.status === "claimed"
+                  }
                 >
                   <CheckCircle className="size-4 mr-1.5" />
                   Accept Claim

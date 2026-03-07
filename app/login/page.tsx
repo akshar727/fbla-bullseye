@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import Footer from "@/components/footer";
 
 function LoginContent() {
   const router = useRouter();
@@ -148,6 +149,7 @@ export default function LoginPage() {
   return (
     <Suspense>
       <LoginContent />
+      <Footer />
     </Suspense>
   );
 }

@@ -8,6 +8,8 @@ export async function notify(
   user: { id: string; name: string },
   header: string,
   message: string,
+  emailHtml?: string,
+  forceSendEmail = false,
 ) {
   const supabaseAdmin = await superCreateClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +34,7 @@ export async function notify(
     message: message,
     notified_user: user.id,
   });
-  if (data?.send_email_notifs) {
+  if (data?.send_email_notifs || forceSendEmail) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -46,7 +48,7 @@ export async function notify(
         from: process.env.EMAIL_USER,
         to: data?.email,
         subject: header,
-        text: message,
+        html: emailHtml,
       });
       console.log("Email notification sent successfully to  " + data?.email);
     } catch (err) {

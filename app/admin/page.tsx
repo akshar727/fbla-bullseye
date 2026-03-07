@@ -1,11 +1,7 @@
-import {
-  Users,
-  Package,
-  FileCheck,
-  ShieldAlert,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Users, Package, FileCheck, ShieldAlert, Activity } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,71 +9,59 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const stats = [
-  {
-    title: "Total Users",
-    value: "2,847",
-    change: "+12.5%",
-    trend: "up" as const,
-    description: "from last month",
-    icon: Users,
-  },
-  {
-    title: "Total Items",
-    value: "1,234",
-    change: "+8.2%",
-    trend: "up" as const,
-    description: "from last month",
-    icon: Package,
-  },
-  {
-    title: "Active Claims",
-    value: "189",
-    change: "-3.1%",
-    trend: "down" as const,
-    description: "from last month",
-    icon: FileCheck,
-  },
-  {
-    title: "Spam Blocked",
-    value: "47",
-    change: "+24.0%",
-    trend: "up" as const,
-    description: "flagged this month",
-    icon: ShieldAlert,
-  },
-];
+interface GeneralStats {
+  totalUsers: number;
+  totalItems: number;
+  activeClaims: number;
+  spamBlocked: number;
+  recentLogs: { header: string; message: string; created_at: string }[];
+}
 
-const recentActivity = [
-  {
-    action: "New item uploaded",
-    detail: "Blue Thermos found at Main Library",
-    time: "2 min ago",
-  },
-  {
-    action: "Claim approved",
-    detail: "Pink Purse claimed by user #1042",
-    time: "15 min ago",
-  },
-  {
-    action: "Spam blocked",
-    detail: "AI flagged suspicious listing",
-    time: "1 hr ago",
-  },
-  {
-    action: "New user registered",
-    detail: "jane.smith@email.com",
-    time: "2 hr ago",
-  },
-  {
-    action: "Item returned",
-    detail: "Laptop matched and returned to owner",
-    time: "3 hr ago",
-  },
-];
+function timeAgo(dateStr: string) {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
 
 export default function AdminPage() {
+  const [stats, setStats] = useState<GeneralStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/general")
+      .then((r) => r.json())
+      .then((data) => setStats(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const statCards = [
+    {
+      title: "Total Users",
+      value: stats?.totalUsers,
+      icon: Users,
+    },
+    {
+      title: "Total Items",
+      value: stats?.totalItems,
+      icon: Package,
+    },
+    {
+      title: "Active Claims",
+      value: stats?.activeClaims,
+      icon: FileCheck,
+    },
+    {
+      title: "Spam Blocked",
+      value: stats?.spamBlocked,
+      icon: ShieldAlert,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -91,7 +75,7 @@ export default function AdminPage() {
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -100,26 +84,13 @@ export default function AdminPage() {
               <stat.icon className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-sans">{stat.value}</div>
-              <div className="flex items-center gap-1 mt-1">
-                {stat.trend === "up" ? (
-                  <TrendingUp className="size-3 text-emerald-600" />
-                ) : (
-                  <TrendingDown className="size-3 text-destructive" />
-                )}
-                <span
-                  className={`text-xs font-medium ${
-                    stat.trend === "up"
-                      ? "text-emerald-600"
-                      : "text-destructive"
-                  }`}
-                >
-                  {stat.change}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {stat.description}
-                </span>
-              </div>
+              {loading ? (
+                <Skeleton className="h-8 w-20 mt-1" />
+              ) : (
+                <div className="text-2xl font-bold font-sans">
+                  {stat.value?.toLocaleString() ?? "—"}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -128,30 +99,52 @@ export default function AdminPage() {
       {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-sans">Recent Activity</CardTitle>
+          <CardTitle className="text-lg font-sans flex items-center gap-2">
+            <Activity className="size-4" />
+            Recent Activity
+          </CardTitle>
           <CardDescription>Latest actions across the platform</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4">
-            {recentActivity.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
-              >
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium font-sans">
-                    {item.action}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {item.detail}
+          {loading ? (
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-56" />
+                  </div>
+                  <Skeleton className="h-3 w-14" />
+                </div>
+              ))}
+            </div>
+          ) : !stats?.recentLogs?.length ? (
+            <p className="text-sm text-muted-foreground">No recent activity.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {stats.recentLogs.map((log, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium font-sans">
+                      {log.header}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {log.message}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
+                    {timeAgo(log.created_at)}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
-                  {item.time}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

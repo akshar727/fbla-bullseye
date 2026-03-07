@@ -11,6 +11,7 @@ import { Recaptcha } from "@/components/ui/recaptcha";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { verifyCaptcha } from "@/lib/captcha";
 import { toast } from "sonner";
+import Footer from "@/components/footer";
 
 function SignupContent() {
   const router = useRouter();
@@ -18,6 +19,8 @@ function SignupContent() {
   const supabase = createClient();
 
   // Student form state
+  const [studentFirstName, setStudentFirstName] = useState("");
+  const [studentLastName, setStudentLastName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [studentCaptchaToken, setStudentCaptchaToken] = useState<string | null>(
@@ -25,6 +28,8 @@ function SignupContent() {
   );
 
   // Staff form state
+  const [staffFirstName, setStaffFirstName] = useState("");
+  const [staffLastName, setStaffLastName] = useState("");
   const [staffEmail, setStaffEmail] = useState("");
   const [staffPassword, setStaffPassword] = useState("");
   const [staffCode, setStaffCode] = useState("");
@@ -32,6 +37,7 @@ function SignupContent() {
     null,
   );
 
+  const [activeTab, setActiveTab] = useState<"student" | "staff">("student");
   const [loading, setLoading] = useState(false);
 
   const nextPath = useMemo(() => {
@@ -42,10 +48,11 @@ function SignupContent() {
   async function signUpWithGoogle() {
     setLoading(true);
     try {
+      const roleParam = activeTab === "staff" ? "&role=staff" : "";
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}${roleParam}`,
         },
       });
       if (error) throw error;
@@ -78,6 +85,11 @@ function SignupContent() {
         password: studentPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+          data: {
+            first_name: studentFirstName.trim(),
+            last_name: studentLastName.trim(),
+            full_name: `${studentFirstName.trim()} ${studentLastName.trim()}`,
+          },
         },
       });
 
@@ -119,6 +131,11 @@ function SignupContent() {
         password: staffPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+          data: {
+            first_name: staffFirstName.trim(),
+            last_name: staffLastName.trim(),
+            full_name: `${staffFirstName.trim()} ${staffLastName.trim()}`,
+          },
         },
       });
 
@@ -189,7 +206,10 @@ function SignupContent() {
         </CardHeader>
 
         <CardContent>
-          <Tabs defaultValue="student">
+          <Tabs
+            defaultValue="student"
+            onValueChange={(v) => setActiveTab(v as "student" | "staff")}
+          >
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="student">Student Sign Up</TabsTrigger>
               <TabsTrigger value="staff">Staff Sign Up</TabsTrigger>
@@ -198,6 +218,30 @@ function SignupContent() {
             {/* Student Sign Up */}
             <TabsContent value="student" className="space-y-4">
               <form onSubmit={handleStudentSignup} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="student-first-name">First Name</Label>
+                    <Input
+                      id="student-first-name"
+                      type="text"
+                      value={studentFirstName}
+                      onChange={(e) => setStudentFirstName(e.target.value)}
+                      placeholder="Jane"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="student-last-name">Last Name</Label>
+                    <Input
+                      id="student-last-name"
+                      type="text"
+                      value={studentLastName}
+                      onChange={(e) => setStudentLastName(e.target.value)}
+                      placeholder="Doe"
+                      required
+                    />
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="student-email">Email</Label>
                   <Input
@@ -238,6 +282,30 @@ function SignupContent() {
             {/* Staff Sign Up */}
             <TabsContent value="staff" className="space-y-4">
               <form onSubmit={handleStaffSignup} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="staff-first-name">First Name</Label>
+                    <Input
+                      id="staff-first-name"
+                      type="text"
+                      value={staffFirstName}
+                      onChange={(e) => setStaffFirstName(e.target.value)}
+                      placeholder="Jane"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="staff-last-name">Last Name</Label>
+                    <Input
+                      id="staff-last-name"
+                      type="text"
+                      value={staffLastName}
+                      onChange={(e) => setStaffLastName(e.target.value)}
+                      placeholder="Doe"
+                      required
+                    />
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="staff-email">Email</Label>
                   <Input
@@ -297,6 +365,7 @@ export default function SignupPage() {
   return (
     <Suspense>
       <SignupContent />
+      <Footer />
     </Suspense>
   );
 }

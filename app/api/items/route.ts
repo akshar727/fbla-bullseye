@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/emails";
+import { after } from "next/server";
+import log from "@/lib/dbLogger";
 
 export async function GET() {
   const supabase = await createClient();
@@ -90,6 +92,12 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  after(() =>
+    log("New item uploaded", `${name} found at ${last_location}`).catch(
+      console.error,
+    ),
+  );
 
   return new Response(JSON.stringify(item), {
     status: 201,

@@ -1,6 +1,10 @@
 import type { ClaimResponse } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/emails";
+import { after } from "next/server"; // Next.js 15+
+import ClaimAcceptedEmail from "@/components/email/claim-accepted";
+import { render } from "@react-email/components";
+import log from "@/lib/dbLogger";
 
 export async function GET(
   request: Request,
@@ -130,7 +134,7 @@ export async function PATCH(
   // Fetch the claim and its item in one query
   const { data: claim, error: fetchError } = await supabase
     .from("claims")
-    .select("*, claimed_item(*)")
+    .select("*, claimed_item(*), claimant(id, name)")
     .eq("id", claimId)
     .single();
 
@@ -166,17 +170,34 @@ export async function PATCH(
         },
       );
     }
-    await notify(
-      claim.claimant,
-      "Your claim was approved for " + claim.claimed_item.name,
-      'Your claim on the item "' +
-        claim.claimed_item.name +
-        '" was approved by the finder.',
+    const emailHtml = await render(
+      <ClaimAcceptedEmail
+        name={claim.claimant.name.split(" ")[0] ?? "User"}
+        itemName={claim.claimed_item.name}
+      />,
+    );
+    after(() =>
+      Promise.all([
+        notify(
+          claim.claimant,
+          "Your claim was approved for " + claim.claimed_item.name,
+          'Your claim on the item "' +
+            claim.claimed_item.name +
+            '" was approved by the finder.',
+          emailHtml,
+        ),
+        log(
+          "Claim approved",
+          `${claim.claimed_item.name} claimed by ${claim.claimant.name}`,
+        ),
+      ]).catch((err) =>
+        console.error("Error sending notification email:", err),
+      ),
     );
     // Mark the item as claimed
     const { error: itemError } = await supabase
       .from("items")
-      .update({ status: "claimed", claimed_by: claim.claimant })
+      .update({ status: "claimed", claimed_by: claim.claimant.id })
       .eq("id", claim.claimed_item.id);
 
     if (itemError) {
