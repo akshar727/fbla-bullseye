@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import type { ItemResponse } from "@/lib/types";
 import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Footer from "@/components/footer";
 
 export default function BrowsePage() {
@@ -25,6 +26,7 @@ export default function BrowsePage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [statusTab, setStatusTab] = useState("unclaimed");
 
   useEffect(() => {
     async function fetchItems() {
@@ -50,7 +52,8 @@ export default function BrowsePage() {
       item.description?.toLowerCase().includes(search.toLowerCase()) ||
       item.last_location?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === "all" || item.category === category;
-    return matchesSearch && matchesCategory;
+    const matchesStatus = item.status === statusTab;
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 
   return (
@@ -61,6 +64,15 @@ export default function BrowsePage() {
           Search through reported found items. Found something? Click an item to
           learn more.
         </p>
+
+        {/* Status tabs */}
+        <Tabs value={statusTab} onValueChange={setStatusTab} className="mb-6">
+          <TabsList className="w-full">
+            <TabsTrigger value="unclaimed">Unclaimed</TabsTrigger>
+            <TabsTrigger value="claimed">Claimed</TabsTrigger>
+            <TabsTrigger value="found">Found</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">

@@ -17,8 +17,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ItemCard } from "@/components/item-card";
 import type { ItemResponse } from "@/lib/types";
 import Footer from "@/components/footer";
 
@@ -46,6 +54,7 @@ export default function ItemPage({
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [inquiryMessage, setInquiryMessage] = useState("");
   const [inquiryLoading, setInquiryLoading] = useState(false);
+  const [relatedItems, setRelatedItems] = useState<ItemResponse[]>([]);
 
   useEffect(() => {
     params.then((p) => setItemId(p.itemId));
@@ -57,8 +66,27 @@ export default function ItemPage({
     fetch(`/api/item/${itemId}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data?.error) toast.error(data.error);
-        else setItem(data);
+        if (data?.error) {
+          toast.error(data.error);
+          return;
+        }
+        setItem(data);
+
+        // Fetch related unclaimed items in the same category, excluding this one
+        if (data?.category) {
+          fetch(
+            `/api/items?category=${encodeURIComponent(data.category)}&status=unclaimed`,
+          )
+            .then((r) => r.json())
+            .then((all: ItemResponse[]) => {
+              if (Array.isArray(all)) {
+                setRelatedItems(
+                  all.filter((i) => i.id !== data.id).slice(0, 5),
+                );
+              }
+            })
+            .catch(() => {});
+        }
       })
       .catch(() => toast.error("Failed to load item."))
       .finally(() => setLoading(false));
@@ -413,6 +441,36 @@ export default function ItemPage({
           </DialogContent>
         </Dialog>
       </div>
+      {/* Related Items */}
+      {relatedItems.length > 0 && (
+        <div className="container mx-auto px-4 py-10 max-w-4xl">
+          <h2 className="text-lg font-semibold mb-4">Other Lost Items</h2>
+          <Carousel opts={{ align: "start", loop: false }} className="w-full">
+            <CarouselContent className="-ml-3">
+              {relatedItems.map((related) => (
+                <CarouselItem
+                  key={related.id}
+                  className="pl-3 basis-full sm:basis-1/2"
+                >
+                  <ItemCard
+                    name={related.name}
+                    status={related.status}
+                    category={related.category}
+                    description={related.description}
+                    location={related.last_location}
+                    date={related.date_lost}
+                    postedBy={(related.posted_by as any)?.name}
+                    imageUrl={related.image_urls?.[0] ?? null}
+                    onClick={() => router.push(`/item/${related.id}`)}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 -translate-x-1/2" />
+            <CarouselNext className="right-0 translate-x-1/2" />
+          </Carousel>
+        </div>
+      )}
       <Footer />
     </>
   );

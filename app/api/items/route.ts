@@ -3,13 +3,27 @@ import { notify } from "@/lib/emails";
 import { after } from "next/server";
 import log from "@/lib/dbLogger";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
-  const { data: items, error } = await supabase
+  const { searchParams } = new URL(request.url);
+  const category = searchParams.get("category");
+  const status = searchParams.get("status");
+
+  let query = supabase
     .from("items")
     .select(
       "*, posted_by:user_public_profiles!items_posted_by_fkey (id, name)",
     );
+
+  if (category) {
+    query = query.eq("category", category);
+  }
+
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  const { data: items, error } = await query;
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

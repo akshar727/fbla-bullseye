@@ -123,7 +123,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t">
+      <div className="border-t border-t-gray-600">
         <div className="container mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white">
           <p>
             © {new Date().getFullYear()} Hickory Ridge High School — Bullseye.

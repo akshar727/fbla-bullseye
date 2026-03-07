@@ -120,7 +120,20 @@ export default function DashboardPage() {
     if (!text) return;
     setReplyLoading(inquiryId);
     try {
-      // TODO: send reply
+      const res = await fetch(`/api/inquiry/${inquiryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error ?? "Failed to send reply.");
+      } else {
+        toast.success("Reply sent!");
+        setReplyText((prev) => ({ ...prev, [inquiryId]: "" }));
+      }
+    } catch {
+      toast.error("An unexpected error occurred.");
     } finally {
       setReplyLoading(null);
     }

@@ -1,11 +1,19 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -17,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/use-user";
 import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import Footer from "@/components/footer";
 
 export default function LostPage() {
@@ -28,9 +37,10 @@ export default function LostPage() {
     category: "",
     description: "",
     location: "",
-    dateTimeLost: "",
     images: [] as File[],
   });
+  const [foundDate, setFoundDate] = useState<Date | undefined>(undefined);
+  const [foundTime, setFoundTime] = useState("12:00");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -64,7 +74,15 @@ export default function LostPage() {
       fd.append("category", formData.category);
       fd.append("description", formData.description);
       fd.append("last_location", formData.location);
-      fd.append("date_lost", formData.dateTimeLost);
+
+      // Combine picked date + time into an ISO string
+      if (foundDate) {
+        const [hours, minutes] = foundTime.split(":").map(Number);
+        const combined = new Date(foundDate);
+        combined.setHours(hours, minutes, 0, 0);
+        fd.append("date_lost", combined.toISOString());
+      }
+
       for (const image of formData.images) {
         fd.append("images", image);
       }
@@ -194,15 +212,38 @@ export default function LostPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dateTimeLost">Date & Time Found *</Label>
-                <Input
-                  type="datetime-local"
-                  id="dateTimeLost"
-                  name="dateTimeLost"
-                  value={formData.dateTimeLost}
-                  onChange={handleChange}
-                  required
-                />
+                <Label>Date & Time Found *</Label>
+                <div className="flex gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "flex-1 justify-start text-left font-normal",
+                          !foundDate && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {foundDate ? format(foundDate, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={foundDate}
+                        onSelect={setFoundDate}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <Input
+                    type="time"
+                    value={foundTime}
+                    onChange={(e) => setFoundTime(e.target.value)}
+                    className="w-32"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

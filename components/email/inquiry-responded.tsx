@@ -70,7 +70,7 @@ export default function InquiryRespondedEmail({
                 href="https://bullseye-ashen.vercel.app/dashboard"
                 className="rounded-lg bg-[rgb(1,5,61)] px-[18px] py-[12px] text-white font-semibold"
               >
-                View Full Conversation
+                Open my Dashboard
               </Button>
             </Section>
 
