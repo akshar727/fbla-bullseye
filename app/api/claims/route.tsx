@@ -5,7 +5,7 @@ import { after } from "next/server";
 import { NextResponse } from "next/server";
 import NewClaimEmail from "@/components/email/new-claim";
 import { render } from "@react-email/components";
-import { evaluateSpam } from "@/lib/spam-guard";
+import { evaluateSpam } from "@/lib/spamGuard";
 import log from "@/lib/dbLogger";
 
 export async function GET() {

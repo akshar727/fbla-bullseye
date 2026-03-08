@@ -190,13 +190,21 @@ export default function DashboardPage() {
                       {getCategoryLabel(item.category)}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => router.push(`/item/${item.id}`)}
-                  >
-                    View
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {item.spam_likeliness != null &&
+                      item.spam_likeliness >= 0.6 && (
+                        <span className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-800">
+                          Under Admin Review
+                        </span>
+                      )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => router.push(`/item/${item.id}`)}
+                    >
+                      View
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
 

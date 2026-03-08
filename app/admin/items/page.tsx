@@ -16,7 +16,8 @@ import {
   type ColumnDef,
   type FieldDef,
 } from "@/components/admin/data-table";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, CheckCircle } from "lucide-react";
+import { spamColor } from "@/lib/utils";
 
 interface Item {
   id: string;
@@ -29,6 +30,7 @@ interface Item {
   status: "unclaimed" | "found" | "claimed";
   posted_by: { id: string; name: string } | null;
   created_at: string;
+  spam_likeliness: number | null;
 }
 
 const categories = [
@@ -58,6 +60,7 @@ export default function ItemsPage() {
   const [viewItem, setViewItem] = useState<Item | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [markFoundLoading, setMarkFoundLoading] = useState(false);
 
   const fetchItems = async () => {
     try {
@@ -137,13 +140,37 @@ export default function ItemsPage() {
     }
   };
 
+  const handleMarkFound = async () => {
+    if (!viewItem) return;
+    setMarkFoundLoading(true);
+    try {
+      const response = await fetch("/api/admin/items", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: viewItem.id, action: "mark_found" }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to mark item as found");
+      }
+      setViewItem((prev) => (prev ? { ...prev, status: "found" } : prev));
+      await fetchItems();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to mark item as found",
+      );
+    } finally {
+      setMarkFoundLoading(false);
+    }
+  };
+
   const statusClass = (status: string) =>
     status === "unclaimed"
       ? "bg-gray-100 text-gray-800"
       : status === "found"
-        ? "bg-blue-100 text-blue-800"
+        ? "bg-green-100 text-green-800"
         : status === "claimed"
-          ? "bg-yellow-100 text-yellow-800"
+          ? "bg-blue-100 text-blue-800"
           : "";
 
   const columns: ColumnDef<Item>[] = [
@@ -167,6 +194,23 @@ export default function ItemsPage() {
         return (
           <Badge variant="outline" className={statusClass(v) + " capitalize"}>
             {v}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: "spam_likeliness",
+      label: "Spam Score",
+      render: (value) => {
+        const score = value as number | null;
+        if (score === null)
+          return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <Badge
+            variant="outline"
+            className={spamColor(score) + " font-semibold"}
+          >
+            {Math.round(score * 100)}%
           </Badge>
         );
       },
@@ -352,10 +396,20 @@ export default function ItemsPage() {
                 setViewItem(null);
                 setDeleteConfirm(false);
               }}
-              disabled={deleteLoading}
+              disabled={deleteLoading || markFoundLoading}
             >
               Close
             </Button>
+            {viewItem?.status === "claimed" && (
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleMarkFound}
+                disabled={markFoundLoading || deleteLoading}
+              >
+                <CheckCircle className="size-4 mr-1.5" />
+                {markFoundLoading ? "Saving…" : "Mark as Found"}
+              </Button>
+            )}
             {!deleteConfirm ? (
               <Button
                 variant="destructive"

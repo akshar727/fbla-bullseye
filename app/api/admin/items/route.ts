@@ -18,9 +18,11 @@ export async function GET() {
       date_lost,
       image_urls,
       created_at,
+      spam_likeliness,
       posted_by (id, name)
     `,
     )
+    .or("spam_likeliness.is.null,spam_likeliness.lt.0.6")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -98,4 +100,32 @@ export async function DELETE(request: Request) {
   }
 
   return NextResponse.json({ success: true, deleted: ids.length });
+}
+
+export async function PATCH(request: Request) {
+  const { supabase, errorResponse } = await requireAdmin();
+  if (errorResponse) return errorResponse;
+
+  const body = await request.json();
+  const { id, action } = body;
+
+  if (!id || action !== "mark_found") {
+    return NextResponse.json(
+      { error: "id and action 'mark_found' are required" },
+      { status: 400 },
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("items")
+    .update({ status: "found", date_found: now, date_returned: now })
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

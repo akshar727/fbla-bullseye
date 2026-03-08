@@ -27,6 +27,7 @@ export interface ItemCardProps {
   imageUrl?: string | null;
   onClick?: () => void;
   className?: string;
+  underAdminReview?: boolean;
 }
 
 export function ItemCard({
@@ -40,21 +41,30 @@ export function ItemCard({
   imageUrl,
   onClick,
   className = "",
+  underAdminReview = false,
 }: ItemCardProps) {
   return (
     <Card
       className={`overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${className}`}
       onClick={onClick}
     >
-      {/* Image or placeholder */}
-      {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt={name} className="h-40 w-full object-cover" />
-      ) : (
-        <div className="h-40 w-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
-          No image
-        </div>
-      )}
+      <div>
+        {/* Image or placeholder */}
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt={name} className="h-40 w-full object-cover" />
+        ) : (
+          <div className="h-40 w-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
+            No image
+          </div>
+        )}
+
+        {underAdminReview && (
+          <div className="bg-orange-50 border-b border-orange-200 px-3 py-1.5 text-xs font-medium text-orange-800">
+            Under Admin Review
+          </div>
+        )}
+      </div>
 
       <CardContent className="pt-4 bg-white space-y-2">
         <div className="flex items-start flex-col justify-between gap-2">

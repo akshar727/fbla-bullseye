@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import Footer from "@/components/footer";
 
 export default function BrowsePage() {
   const router = useRouter();
+  const { user } = useUser();
   const [items, setItems] = useState<ItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +162,11 @@ export default function BrowsePage() {
                 date={item.date_lost}
                 postedBy={item.posted_by?.name}
                 imageUrl={item.image_urls?.[0]}
+                underAdminReview={
+                  !!user &&
+                  item.spam_likeliness != null &&
+                  item.spam_likeliness >= 0.6
+                }
                 onClick={() => router.push(`/item/${item.id}`)}
               />
             ))}

@@ -39,7 +39,7 @@ const databaseNav = [
   { title: "Users", href: "/admin/users", icon: Users },
   { title: "Items", href: "/admin/items", icon: Package },
   { title: "Claims", href: "/admin/claims", icon: FileCheck },
-  { title: "Spam Claims", href: "/admin/claims/spam", icon: ShieldAlert },
+  { title: "Spam Review", href: "/admin/claims/spam", icon: ShieldAlert },
   { title: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
   {
     title: "Exchange Requests",

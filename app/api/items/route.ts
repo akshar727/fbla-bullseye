@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/emails";
 import { after } from "next/server";
 import log from "@/lib/dbLogger";
+import { evaluateItem, SPAM_THRESHOLD } from "@/lib/spamGuard";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -9,11 +11,36 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const status = searchParams.get("status");
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Check if the requester is an admin — admins see all items including spam
+  let isAdmin = false;
+  if (user) {
+    const { data: roleData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    isAdmin = roleData?.role === "admin";
+  }
+
+  // Admins see everything; owners see their own spam items; others never see spam
+  const spamFilter =
+    user && !isAdmin
+      ? `spam_likeliness.is.null,spam_likeliness.lt.${SPAM_THRESHOLD},posted_by.eq.${user.id}`
+      : `spam_likeliness.is.null,spam_likeliness.lt.${SPAM_THRESHOLD}`;
+
   let query = supabase
     .from("items")
     .select(
       "*, posted_by:user_public_profiles!items_posted_by_fkey (id, name)",
     );
+
+  if (!isAdmin) {
+    query = query.or(spamFilter);
+  }
 
   if (category) {
     query = query.eq("category", category);
@@ -112,6 +139,26 @@ export async function POST(request: Request) {
       console.error,
     ),
   );
+
+  // Run spam evaluation asynchronously after response
+  after(async () => {
+    try {
+      const score = await evaluateItem(item.id);
+      const adminClient = createAdminClient();
+      await adminClient
+        .from("items")
+        .update({ spam_likeliness: score })
+        .eq("id", item.id);
+      if (score >= SPAM_THRESHOLD) {
+        await log(
+          "Spam Detected",
+          `Item "${name}" (${item.id}) flagged with spam score ${Math.round(score * 100)}%`,
+        );
+      }
+    } catch (err) {
+      console.error("[spamGuard] Item spam evaluation failed:", err);
+    }
+  });
 
   return new Response(JSON.stringify(item), {
     status: 201,

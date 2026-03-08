@@ -49,8 +49,6 @@ export default function ItemPage({
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [markFoundLoading, setMarkFoundLoading] = useState(false);
-  const [confirmMarkFound, setConfirmMarkFound] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [inquiryMessage, setInquiryMessage] = useState("");
   const [inquiryLoading, setInquiryLoading] = useState(false);
@@ -96,24 +94,6 @@ export default function ItemPage({
     console.log("Checking ownership:", { user, item });
     return !!user && item?.posted_by?.id === user.id;
   }, [user, item?.posted_by]);
-
-  const handleMarkFound = async () => {
-    if (!itemId) return;
-    setMarkFoundLoading(true);
-    try {
-      const res = await fetch(`/api/item/${itemId}`, { method: "PUT" });
-      const data = await res.json();
-      if (!res.ok) toast.error(data?.error ?? "Failed to mark as found.");
-      else {
-        toast.success("Item marked as found!");
-        setItem((prev) => (prev ? { ...prev, status: "found" } : prev));
-      }
-    } catch {
-      toast.error("An unexpected error occurred.");
-    } finally {
-      setMarkFoundLoading(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!itemId) return;
@@ -218,6 +198,13 @@ export default function ItemPage({
 
           {/* Details */}
           <div className="space-y-4">
+            {item.spam_likeliness != null && item.spam_likeliness >= 0.6 && (
+              <div className="rounded-md border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-orange-800">
+                <span className="font-semibold">Under Admin Review</span>
+                {" - "}This listing is not visible to other users while
+                it&apos;s being reviewed.
+              </div>
+            )}
             <div className="flex items-start gap-3 flex-wrap">
               <h1 className="text-2xl font-bold flex-1">{item.name}</h1>
               <span
@@ -309,16 +296,6 @@ export default function ItemPage({
                   >
                     Manage Claims
                   </Button>
-                  {item.status === "unclaimed" && (
-                    <LoadingButton
-                      className="w-full"
-                      variant="secondary"
-                      loading={markFoundLoading}
-                      onClick={() => setConfirmMarkFound(true)}
-                    >
-                      Mark as Found (No Claim)
-                    </LoadingButton>
-                  )}
                   <LoadingButton
                     className="w-full"
                     variant="destructive"
@@ -403,39 +380,6 @@ export default function ItemPage({
                 }}
               >
                 Submit
-              </LoadingButton>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Mark as Found confirmation dialog */}
-        <Dialog open={confirmMarkFound} onOpenChange={setConfirmMarkFound}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Mark as Found?</DialogTitle>
-              <DialogDescription>
-                This will mark the item as found without approving any pending
-                claims. Any existing claims will remain on record. This cannot
-                be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                disabled={markFoundLoading}
-                onClick={() => setConfirmMarkFound(false)}
-              >
-                Cancel
-              </Button>
-              <LoadingButton
-                variant="secondary"
-                loading={markFoundLoading}
-                onClick={async () => {
-                  await handleMarkFound();
-                  setConfirmMarkFound(false);
-                }}
-              >
-                Yes, Mark as Found
               </LoadingButton>
             </DialogFooter>
           </DialogContent>

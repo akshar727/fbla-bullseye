@@ -17,6 +17,7 @@ import {
   type FieldDef,
 } from "@/components/admin/data-table";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
+import { spamColor } from "@/lib/utils";
 
 interface Claim {
   id: string;
@@ -45,12 +46,6 @@ export default function ClaimsPage() {
   const [viewClaim, setViewClaim] = useState<Claim | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const spamColor = (score: number) => {
-    if (score === 0) return "bg-green-100 text-green-700";
-    if (score >= 0.85) return "bg-red-100 text-red-800";
-    if (score >= 0.7) return "bg-orange-100 text-orange-800";
-    return "bg-yellow-100 text-yellow-800";
-  };
 
   const fetchClaims = async () => {
     try {

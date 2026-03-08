@@ -19,6 +19,7 @@ export type ItemResponse = {
     name: string;
   } | null;
   date_returned: string | null;
+  spam_likeliness: number | null;
 };
 
 export type ClaimResponse = {

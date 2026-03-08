@@ -11,34 +11,43 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DataTable,
   type ColumnDef,
   type FieldDef,
 } from "@/components/admin/data-table";
 import { Eye, RotateCcw, Trash2 } from "lucide-react";
+import { spamColor } from "@/lib/utils";
 
 interface SpamClaim {
   id: string;
-  claimant: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
+  claimant: { id: string; name: string; email: string } | null;
   extra_descriptions: string;
   proof_of_ownerships: string[];
   created_at: string;
   spam_likeliness: number | null;
-  claimed_item: {
-    id: string;
-    name: string;
-    status: string;
-  } | null;
+  claimed_item: { id: string; name: string; status: string } | null;
+}
+
+interface SpamItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  last_location: string;
+  status: string;
+  image_urls: string[];
+  created_at: string;
+  spam_likeliness: number | null;
+  posted_by: { id: string; name: string } | null;
 }
 
 const addFields: FieldDef[] = [];
 
-export default function SpamClaimsPage() {
+// --- Spam Claims Tab ---
+
+function SpamClaimsTab() {
   const [claims, setClaims] = useState<SpamClaim[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,9 +59,8 @@ export default function SpamClaimsPage() {
       setLoading(true);
       setError(null);
       const response = await fetch("/api/admin/claims/spam");
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`Failed to fetch spam claims: ${response.statusText}`);
-      }
       const data = await response.json();
       setClaims(data);
     } catch (err) {
@@ -125,13 +133,6 @@ export default function SpamClaimsPage() {
     }
   };
 
-  const spamColor = (score: number | null) => {
-    if (score === null) return "bg-gray-100 text-gray-700";
-    if (score >= 0.85) return "bg-red-100 text-red-800";
-    if (score >= 0.7) return "bg-orange-100 text-orange-800";
-    return "bg-yellow-100 text-yellow-800";
-  };
-
   const columns: ColumnDef<SpamClaim>[] = [
     { key: "id", label: "ID" },
     {
@@ -154,7 +155,7 @@ export default function SpamClaimsPage() {
       key: "spam_likeliness",
       label: "Spam Score",
       render: (value) => {
-        const score = value as number | null;
+        const score = value as number;
         return (
           <Badge
             variant="outline"
@@ -205,7 +206,6 @@ export default function SpamClaimsPage() {
           {error}
         </div>
       )}
-
       <DataTable<SpamClaim>
         title="Spam Claims"
         description="Claims flagged by AI as likely spam (score ≥ 60%). Restore legitimate ones or delete fraudulent submissions."
@@ -217,8 +217,6 @@ export default function SpamClaimsPage() {
         onDelete={handleDeleteClaims}
         disableAdd
       />
-
-      {/* Claim Detail Dialog */}
       <Dialog
         open={!!viewClaim}
         onOpenChange={(open) => !open && setViewClaim(null)}
@@ -231,19 +229,16 @@ export default function SpamClaimsPage() {
               delete it permanently.
             </DialogDescription>
           </DialogHeader>
-
           {viewClaim && (
             <div className="space-y-4">
-              {/* Spam score banner */}
               <div className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800">
                 <span className="font-semibold">AI Spam Score:</span>
-                <span className="font-bold text-base">
+                <span className="font-bold text-base ml-1">
                   {viewClaim.spam_likeliness !== null
                     ? `${Math.round(viewClaim.spam_likeliness * 100)}%`
                     : "—"}
                 </span>
               </div>
-
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-medium text-muted-foreground">Item</p>
@@ -272,7 +267,6 @@ export default function SpamClaimsPage() {
                   <p>{new Date(viewClaim.created_at).toLocaleString()}</p>
                 </div>
               </div>
-
               <div>
                 <p className="font-medium text-muted-foreground text-sm mb-1">
                   Description / Notes
@@ -281,13 +275,12 @@ export default function SpamClaimsPage() {
                   {viewClaim.extra_descriptions || "No description provided."}
                 </p>
               </div>
-
               {viewClaim.proof_of_ownerships?.length > 0 && (
                 <div>
                   <p className="font-medium text-muted-foreground text-sm mb-2">
                     Proof of Ownership ({viewClaim.proof_of_ownerships.length}{" "}
-                    image
-                    {viewClaim.proof_of_ownerships.length !== 1 ? "s" : ""})
+                    image{viewClaim.proof_of_ownerships.length !== 1 ? "s" : ""}
+                    )
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {viewClaim.proof_of_ownerships.map((url, i) => (
@@ -311,7 +304,6 @@ export default function SpamClaimsPage() {
               )}
             </div>
           )}
-
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
@@ -343,6 +335,319 @@ export default function SpamClaimsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// --- Spam Items Tab ---
+
+function SpamItemsTab() {
+  const [items, setItems] = useState<SpamItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [viewItem, setViewItem] = useState<SpamItem | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/admin/items/spam");
+      if (!response.ok)
+        throw new Error(`Failed to fetch spam items: ${response.statusText}`);
+      const data = await response.json();
+      setItems(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch spam items",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleDeleteItems = async (ids: string[]) => {
+    const response = await fetch("/api/admin/items/spam", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to delete items");
+    }
+    await fetchItems();
+  };
+
+  const handleRestore = async () => {
+    if (!viewItem) return;
+    setActionLoading(true);
+    try {
+      const response = await fetch("/api/admin/items/spam", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: viewItem.id }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to restore item");
+      }
+      setViewItem(null);
+      await fetchItems();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to restore item");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!viewItem) return;
+    setActionLoading(true);
+    try {
+      const response = await fetch("/api/admin/items/spam", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [viewItem.id] }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete item");
+      }
+      setViewItem(null);
+      await fetchItems();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete item");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const columns: ColumnDef<SpamItem>[] = [
+    { key: "id", label: "ID" },
+    { key: "name", label: "Item Name" },
+    {
+      key: "category",
+      label: "Category",
+      render: (value) => (
+        <Badge variant="outline" className="capitalize">
+          {String(value)}
+        </Badge>
+      ),
+    },
+    {
+      key: "spam_likeliness",
+      label: "Spam Score",
+      render: (value) => {
+        const score = value as number;
+        return (
+          <Badge
+            variant="outline"
+            className={spamColor(score) + " font-semibold"}
+          >
+            {score !== null ? `${Math.round(score * 100)}%` : "—"}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: "posted_by",
+      label: "Posted By",
+      render: (value) => {
+        const user = value as SpamItem["posted_by"];
+        return user?.name || "Unknown";
+      },
+    },
+    {
+      key: "created_at",
+      label: "Posted On",
+      render: (value) => new Date(String(value)).toLocaleDateString(),
+    },
+    {
+      key: "id",
+      label: "Actions",
+      sortable: false,
+      render: (_value, row) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            setViewItem(row);
+          }}
+        >
+          <Eye className="size-3.5 mr-1.5" />
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+      <DataTable<SpamItem>
+        title="Spam Items"
+        description="Items flagged by AI as likely spam or inappropriate (score ≥ 60%). Restore clean listings or delete violations."
+        columns={columns}
+        data={items}
+        addFields={addFields}
+        searchableKeys={["name", "description"]}
+        // @ts-ignore
+        onDelete={handleDeleteItems}
+        disableAdd
+      />
+      <Dialog
+        open={!!viewItem}
+        onOpenChange={(open) => !open && setViewItem(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Spam Item Details</DialogTitle>
+            <DialogDescription>
+              Review the flagged item. Restore it if it looks legitimate, or
+              delete it permanently.
+            </DialogDescription>
+          </DialogHeader>
+          {viewItem && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800">
+                <span className="font-semibold">AI Spam Score:</span>
+                <span className="font-bold text-base ml-1">
+                  {viewItem.spam_likeliness !== null
+                    ? `${Math.round(viewItem.spam_likeliness * 100)}%`
+                    : "—"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-medium text-muted-foreground">Name</p>
+                  <p>{viewItem.name}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Category</p>
+                  <Badge variant="outline" className="capitalize mt-0.5">
+                    {viewItem.category}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Status</p>
+                  <p className="capitalize">{viewItem.status}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Location</p>
+                  <p>{viewItem.last_location || "—"}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Posted By</p>
+                  <p>{viewItem.posted_by?.name || "Unknown"}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Posted On</p>
+                  <p>{new Date(viewItem.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+              <div>
+                <p className="font-medium text-muted-foreground text-sm mb-1">
+                  Description
+                </p>
+                <p className="text-sm bg-muted rounded-md p-3 whitespace-pre-wrap">
+                  {viewItem.description || "No description provided."}
+                </p>
+              </div>
+              {viewItem.image_urls?.length > 0 && (
+                <div>
+                  <p className="font-medium text-muted-foreground text-sm mb-2">
+                    Images ({viewItem.image_urls.length})
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {viewItem.image_urls.map((url, i) => (
+                      <a
+                        key={i}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`${viewItem.name} image ${i + 1}`}
+                          className="rounded-md border object-cover w-full h-40 hover:opacity-90 transition-opacity"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setViewItem(null)}
+              disabled={actionLoading}
+            >
+              Close
+            </Button>
+            {viewItem && (
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={actionLoading}
+                >
+                  <Trash2 className="size-4 mr-1.5" />
+                  Delete
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleRestore}
+                  disabled={actionLoading}
+                >
+                  <RotateCcw className="size-4 mr-1.5" />
+                  Restore Item
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// --- Page ---
+
+export default function SpamReviewPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Spam Review</h1>
+        <p className="text-muted-foreground text-sm">
+          AI-flagged claims and items awaiting admin review.
+        </p>
+      </div>
+      <Tabs defaultValue="claims">
+        <TabsList className="w-full">
+          <TabsTrigger value="claims">Spam Claims</TabsTrigger>
+          <TabsTrigger value="items">Spam Items</TabsTrigger>
+        </TabsList>
+        <TabsContent value="claims" className="mt-4">
+          <SpamClaimsTab />
+        </TabsContent>
+        <TabsContent value="items" className="mt-4">
+          <SpamItemsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
