@@ -16,6 +16,7 @@ export async function GET() {
       extra_descriptions,
       proof_of_ownerships,
       created_at,
+      spam_likeliness,
       claimed_item (
         id,
         name,
@@ -23,6 +24,7 @@ export async function GET() {
       )
     `,
     )
+    .or("spam_likeliness.is.null,spam_likeliness.lt.0.6")
     .order("created_at", { ascending: false });
 
   if (error) {

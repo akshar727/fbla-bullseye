@@ -11,6 +11,7 @@ import {
   Database,
   MessageSquare,
   MessageSquareText,
+  UserCog,
 } from "lucide-react";
 
 import {

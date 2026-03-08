@@ -12,6 +12,77 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { verifyCaptcha } from "@/lib/captcha";
 import { toast } from "sonner";
 import Footer from "@/components/footer";
+import { cn } from "@/lib/utils";
+
+type StrengthLevel = { label: string; color: string; bg: string; bars: number };
+
+const STRENGTH_LEVELS: StrengthLevel[] = [
+  { label: "Weak", color: "text-red-500", bg: "bg-red-500", bars: 1 },
+  { label: "Fair", color: "text-orange-500", bg: "bg-orange-500", bars: 2 },
+  { label: "Good", color: "text-yellow-500", bg: "bg-yellow-500", bars: 3 },
+  { label: "Strong", color: "text-green-500", bg: "bg-green-500", bars: 4 },
+];
+
+function getStrength(password: string): {
+  score: number;
+  checks: { label: string; met: boolean }[];
+} {
+  const checks = [
+    { label: "At least 8 characters", met: password.length >= 8 },
+    { label: "Uppercase letter", met: /[A-Z]/.test(password) },
+    { label: "Lowercase letter", met: /[a-z]/.test(password) },
+    { label: "Number", met: /[0-9]/.test(password) },
+    { label: "Special character", met: /[^A-Za-z0-9]/.test(password) },
+  ];
+  return { score: checks.filter((c) => c.met).length, checks };
+}
+
+function PasswordStrength({ password }: { password: string }) {
+  if (!password) return null;
+  const { score, checks } = getStrength(password);
+  // score 1→index 0, 2→1, 3-4→2, 5→3
+  const levelIndex = score <= 1 ? 0 : score === 2 ? 1 : score <= 4 ? 2 : 3;
+  const level = STRENGTH_LEVELS[levelIndex];
+
+  return (
+    <div className="space-y-2 pt-1">
+      {/* Bar */}
+      <div className="flex items-center gap-2">
+        <div className="flex flex-1 gap-1">
+          {STRENGTH_LEVELS.map((l, i) => (
+            <div
+              key={i}
+              className={cn(
+                "h-1.5 flex-1 rounded-full transition-all duration-300",
+                i < level.bars ? level.bg : "bg-muted",
+              )}
+            />
+          ))}
+        </div>
+        <span
+          className={cn("text-xs font-medium w-12 text-right", level.color)}
+        >
+          {level.label}
+        </span>
+      </div>
+      {/* Checklist */}
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+        {checks.map((c) => (
+          <li
+            key={c.label}
+            className={cn(
+              "flex items-center gap-1 text-xs",
+              c.met ? "text-green-600" : "text-muted-foreground",
+            )}
+          >
+            <span>{c.met ? "✓" : "○"}</span>
+            {c.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function SignupContent() {
   const router = useRouter();
@@ -66,6 +137,10 @@ function SignupContent() {
 
   async function handleStudentSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (getStrength(studentPassword).score < 5) {
+      toast.error("Please use a stronger password before signing up.");
+      return;
+    }
     if (!studentCaptchaToken) {
       toast.error("Please complete the CAPTCHA");
       return;
@@ -109,6 +184,10 @@ function SignupContent() {
 
   async function handleStaffSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (getStrength(staffPassword).score < 5) {
+      toast.error("Please use a stronger password before signing up.");
+      return;
+    }
     if (!staffCaptchaToken) {
       toast.error("Please complete the CAPTCHA");
       return;
@@ -280,13 +359,18 @@ function SignupContent() {
                     required
                     minLength={6}
                   />
+                  <PasswordStrength password={studentPassword} />
                 </div>
 
                 <div className="flex justify-center scale-90 origin-top my-3">
                   <Recaptcha onVerify={setStudentCaptchaToken} />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading || getStrength(studentPassword).score < 5}
+                >
                   Sign Up
                 </Button>
               </form>
@@ -344,6 +428,7 @@ function SignupContent() {
                     required
                     minLength={6}
                   />
+                  <PasswordStrength password={staffPassword} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -362,7 +447,11 @@ function SignupContent() {
                   <Recaptcha onVerify={setStaffCaptchaToken} />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading || getStrength(staffPassword).score < 5}
+                >
                   Sign Up as Admin
                 </Button>
               </form>

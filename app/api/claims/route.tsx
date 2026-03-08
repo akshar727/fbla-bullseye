@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { NextResponse } from "next/server";
 import NewClaimEmail from "@/components/email/new-claim";
 import { render } from "@react-email/components";
+import { evaluateSpam } from "@/lib/spamGuard";
 
 export async function GET() {
   const supabase = await createClient();
@@ -118,19 +119,28 @@ export async function POST(request: Request) {
     notify(
       item.posted_by,
       "New claim on your item: " + item.name,
-      'Someone has submitted a claim on your lost item "' +
-        item.name +
-        '."',
+      'Someone has submitted a claim on your lost item "' + item.name + '."',
       emailHtml,
     ).catch((err) => console.error("Error sending notification email:", err)),
   );
 
-  const { error: claimError } = await supabase.from("claims").insert({
-    claimant: user.id,
-    claimed_item: itemId,
-    extra_descriptions: extraDescriptions,
-    proof_of_ownerships: proofUrls,
-  });
+  const { data: claimData, error: claimError } = await supabase
+    .from("claims")
+    .insert({
+      claimant: user.id,
+      claimed_item: itemId,
+      extra_descriptions: extraDescriptions,
+      proof_of_ownerships: proofUrls,
+    })
+    .select()
+    .single();
+  const spamLikely = await evaluateSpam(claimData.id);
+  if (claimData) {
+    await supabase
+      .from("claims")
+      .update({ spam_likeliness: spamLikely })
+      .eq("id", claimData.id);
+  }
 
   if (claimError) {
     return new Response(JSON.stringify({ error: claimError.message }), {

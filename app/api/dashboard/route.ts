@@ -31,6 +31,7 @@ export async function GET() {
         extra_descriptions,
         proof_of_ownerships,
         created_at,
+        spam_likeliness,
         rooms (id)
       ),
       inquiries (
@@ -49,5 +50,14 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(items);
+  // Strip out claims flagged as likely spam (score >= 0.6)
+  const filtered = (items ?? []).map((item) => ({
+    ...item,
+    claims: (item.claims ?? []).filter(
+      (c: { spam_likeliness: number | null }) =>
+        c.spam_likeliness === null || c.spam_likeliness < 0.6,
+    ),
+  }));
+
+  return NextResponse.json(filtered);
 }

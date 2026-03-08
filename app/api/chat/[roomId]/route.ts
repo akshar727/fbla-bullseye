@@ -161,7 +161,7 @@ export async function PATCH(
 
   const { error: updateError } = await supabase
     .from("rooms")
-    .update({ proposed_time, time_accepted: null })
+    .update({ proposed_time, time_accepted: false })
     .eq("id", roomId);
 
   if (updateError) {
