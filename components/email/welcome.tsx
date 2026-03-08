@@ -113,6 +113,13 @@ export default function WelcomeEmail({ name = "" }: WelcomeEmailProps) {
 
           <Container className="mt-[20px]">
             <Section>
+              <Text className="text-sm text-center text-gray-500 mb-[16px]">
+                You&apos;ll receive both email notifications and website
+                notification when someone claims or inquires about your items,
+                when your claims are accepted, and when your inquiries are
+                responded to. You can opt out anytime by clicking the button
+                below.
+              </Text>
               <Row>
                 <Column className="px-[20px] text-center">
                   <Link href="https://bullseye-ashen.vercel.app/unsubscribe">

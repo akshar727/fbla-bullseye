@@ -26,6 +26,7 @@ type ClaimSummary = {
   extra_descriptions: string;
   proof_of_ownerships: string[];
   created_at: string;
+  rooms?: { id: number }[];
 };
 
 type ClaimedByUser = {
@@ -216,7 +217,11 @@ export default function DashboardPage() {
                       size="sm"
                       className="w-full"
                       onClick={() => {
-                        // TODO: Open chat with {item.claimed_by.name}
+                        const roomId = item.claims?.flatMap(
+                          (c) => c.rooms ?? [],
+                        )?.[0]?.id;
+                        if (roomId) router.push(`/dashboard/chat/${roomId}`);
+                        else toast.error("Chat room not set up yet.");
                       }}
                     >
                       Open Chat with {item.claimed_by.name}

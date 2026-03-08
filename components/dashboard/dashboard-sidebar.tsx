@@ -9,6 +9,8 @@ import {
   Files,
   FileClock,
   Database,
+  MessageSquare,
+  MessageSquareText,
 } from "lucide-react";
 
 import {
@@ -29,6 +31,16 @@ const dashboardNav = [
     title: "Reported Found Items",
     href: "/dashboard",
     icon: Backpack,
+  },
+  {
+    title: "My Inquiries",
+    href: "/dashboard/inquiries",
+    icon: MessageSquare,
+  },
+  {
+    title: "Chats",
+    href: "/dashboard/chats",
+    icon: MessageSquareText,
   },
 ];
 

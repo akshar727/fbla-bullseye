@@ -115,6 +115,18 @@ function SignupContent() {
     }
     setLoading(true);
     try {
+      // Validate staff code before creating the account
+      const verifyRes = await fetch("/api/staff/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: staffCode.trim() }),
+      });
+      if (!verifyRes.ok) {
+        const verifyData = await verifyRes.json();
+        toast.error(verifyData?.error ?? "Invalid admin code.");
+        setLoading(false);
+        return;
+      }
       const verified = await verifyCaptcha(staffCaptchaToken);
       if (!verified) {
         toast.error("CAPTCHA verification failed. Please try again.");
@@ -123,14 +135,10 @@ function SignupContent() {
         return;
       }
 
-      // TODO: Send staffCode to backend to verify it is a valid staff signup code.
-      // If invalid, show an error and return early.
-
       const { error } = await supabase.auth.signUp({
         email: staffEmail,
         password: staffPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
           data: {
             first_name: staffFirstName.trim(),
             last_name: staffLastName.trim(),
@@ -143,11 +151,18 @@ function SignupContent() {
         toast.error(error.message);
         return;
       }
+      const res = await fetch("/api/staff/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: staffCode.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error ?? "Invalid admin code. Please try again.");
+        return;
+      }
 
-      // TODO: After account creation, send a request to the backend with staffCode
-      // to promote the newly created user to an admin/staff role.
-
-      toast.success("Staff account created. Please login.");
+      toast.success("Admin account created. Please login.");
       router.push(`/login?next=${encodeURIComponent(nextPath)}`);
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -174,7 +189,7 @@ function SignupContent() {
         onClick={signUpWithGoogle}
         disabled={loading}
       >
-        Continue with Google
+        Continue with Google{activeTab === "staff" ? " as Admin" : ""}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
@@ -212,7 +227,7 @@ function SignupContent() {
           >
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="student">Student Sign Up</TabsTrigger>
-              <TabsTrigger value="staff">Staff Sign Up</TabsTrigger>
+              <TabsTrigger value="staff">Admin Sign Up</TabsTrigger>
             </TabsList>
 
             {/* Student Sign Up */}
@@ -332,13 +347,13 @@ function SignupContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="staff-code">Staff Signup Code</Label>
+                  <Label htmlFor="staff-code">Admin Signup Code</Label>
                   <Input
                     id="staff-code"
                     type="text"
                     value={staffCode}
                     onChange={(e) => setStaffCode(e.target.value)}
-                    placeholder="Enter your staff signup code"
+                    placeholder="Enter your admin signup code"
                     required
                   />
                 </div>
@@ -348,7 +363,7 @@ function SignupContent() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  Sign Up as Staff
+                  Sign Up as Admin
                 </Button>
               </form>
 

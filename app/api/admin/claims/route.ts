@@ -1,6 +1,7 @@
 import { NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import log from "@/lib/dbLogger";
+import { createRoom } from "@/lib/chat";
 
 export async function GET() {
   const { supabase, errorResponse } = await requireAdmin();
@@ -101,6 +102,21 @@ export async function PATCH(request: Request) {
 
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    // Fetch the item poster to create the chat room between poster and claimant
+    const { data: itemData } = await supabase
+      .from("items")
+      .select("posted_by:users!items_posted_by_fkey (id, name)")
+      .eq("id", claim.claimed_item.id)
+      .single();
+    if (itemData?.posted_by) {
+      await createRoom(
+        // @ts-ignore
+        itemData.posted_by as { id: string; name: string },
+        { id: claim.claimant.id, name: claim.claimant.name },
+        { id: claim.id },
+      ).catch(console.error);
     }
 
     after(() =>

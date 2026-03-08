@@ -48,6 +48,10 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
   }
+  if (request.nextUrl.pathname.startsWith("/signup/complete")) {
+    // Allow access to signup completion page
+    return NextResponse.next();
+  }
 
   // Public routes accessible without authentication
   const publicPaths = [

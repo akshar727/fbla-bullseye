@@ -22,17 +22,17 @@ function CompleteStaffContent() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/staff/verify-code", {
+      const res = await fetch("/api/staff/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data?.error ?? "Invalid staff code. Please try again.");
+        toast.error(data?.error ?? "Invalid admin code. Please try again.");
         return;
       }
-      toast.success("Staff account activated! Welcome.");
+      toast.success("Admin account activated! Welcome.");
       router.push(nextPath.startsWith("/") ? nextPath : "/dashboard");
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -49,28 +49,28 @@ function CompleteStaffContent() {
             <ShieldCheck className="size-10 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold">
-            Complete Staff Registration
+            Complete Admin Registration
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Enter your staff signup code to activate your staff account.
+            Enter your admin signup code to activate your admin account.
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="staff-code">Staff Signup Code</Label>
+              <Label htmlFor="admin-code">Admin Signup Code</Label>
               <Input
-                id="staff-code"
+                id="admin-code"
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="Enter your staff code"
+                placeholder="Enter your admin code"
                 required
                 autoFocus
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Verifying..." : "Activate Staff Account"}
+              {loading ? "Verifying..." : "Activate Admin Account"}
             </Button>
           </form>
         </CardContent>
@@ -79,7 +79,7 @@ function CompleteStaffContent() {
   );
 }
 
-export default function CompleteStaffSignupPage() {
+export default function CompleteAdminSignupPage() {
   return (
     <Suspense>
       <CompleteStaffContent />

@@ -143,6 +143,7 @@ export default function UsersPage() {
         data={users}
         onAdd={handleAddUser}
         onDelete={handleDeleteUsers}
+        disableAdd
         addFields={addFields}
         searchableKeys={["name", "email", "role"]}
       />

@@ -20,7 +20,9 @@ export async function GET(request: Request) {
 
     if (!error) {
       // Staff Google OAuth — redirect to the code verification step
+      console.log("no error");
       if (role === "staff") {
+        console.log("staff redirect");
         return NextResponse.redirect(
           `${origin}/signup/complete?next=${encodeURIComponent(next)}`,
         );

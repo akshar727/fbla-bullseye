@@ -12,6 +12,7 @@ import {
   Database,
   LogOut,
   ShieldCheck,
+  CalendarClock,
 } from "lucide-react";
 
 import {
@@ -38,6 +39,11 @@ const databaseNav = [
   { title: "Items", href: "/admin/items", icon: Package },
   { title: "Claims", href: "/admin/claims", icon: FileCheck },
   { title: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
+  {
+    title: "Exchange Requests",
+    href: "/admin/exchanges",
+    icon: CalendarClock,
+  },
 ];
 
 export function AdminSidebar() {

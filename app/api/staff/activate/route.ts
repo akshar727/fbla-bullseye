@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
- * POST /api/staff/verify-code
+ * POST /api/staff/activate
  * Body: { code: string }
  * Verifies the staff signup code and promotes the current user to admin role.
  * Called from /signup/complete after a Google OAuth staff signup.

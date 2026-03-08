@@ -104,3 +104,57 @@ export async function PATCH(
 
   return NextResponse.json({ ok: true });
 }
+
+/**
+ * DELETE /api/inquiry/[inquiryId]
+ * Deletes an inquiry. Only the original inquirer may delete, and only if
+ * the inquiry has not yet been responded to.
+ */
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ inquiryId: string }> },
+) {
+  const supabase = await createClient();
+  const { inquiryId } = await params;
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const { data: inquiry, error: fetchError } = await supabase
+    .from("inquiries")
+    .select("id, inquirer, inquiry_response")
+    .eq("id", inquiryId)
+    .single();
+
+  if (fetchError || !inquiry) {
+    return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
+  }
+
+  if (inquiry.inquirer !== user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (inquiry.inquiry_response) {
+    return NextResponse.json(
+      { error: "Cannot delete an inquiry that has already been responded to" },
+      { status: 409 },
+    );
+  }
+
+  const { error: deleteError } = await supabase
+    .from("inquiries")
+    .delete()
+    .eq("id", inquiryId);
+
+  if (deleteError) {
+    return NextResponse.json({ error: deleteError.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

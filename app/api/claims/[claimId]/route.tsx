@@ -1,10 +1,11 @@
 import type { ClaimResponse } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/emails";
-import { after } from "next/server"; // Next.js 15+
+import { after } from "next/server";
 import ClaimAcceptedEmail from "@/components/email/claim-accepted";
 import { render } from "@react-email/components";
 import log from "@/lib/dbLogger";
+import { createRoom } from "@/lib/chat";
 
 export async function GET(
   request: Request,
@@ -205,6 +206,20 @@ export async function PATCH(
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Create a chat room between the finder and the claimant
+    const { data: finderData } = await supabase
+      .from("users")
+      .select("id, name")
+      .eq("id", user.id)
+      .single();
+    if (finderData) {
+      await createRoom(
+        { id: finderData.id, name: finderData.name },
+        { id: claim.claimant.id, name: claim.claimant.name },
+        { id: claimId },
+      ).catch(console.error);
     }
 
     return new Response(JSON.stringify({ message: "Claim approved" }), {

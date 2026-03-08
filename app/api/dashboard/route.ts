@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -29,7 +30,8 @@ export async function GET() {
         claimant,
         extra_descriptions,
         proof_of_ownerships,
-        created_at
+        created_at,
+        rooms (id)
       ),
       inquiries (
         id,
