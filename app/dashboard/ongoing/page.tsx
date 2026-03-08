@@ -88,7 +88,16 @@ export default function OngoingClaimsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge>Pending</Badge>
+                    {(claim.spam_likeliness ?? 0) >= 0.6 ? (
+                      <Badge
+                        variant="outline"
+                        className="border-orange-300 bg-orange-50 text-orange-700"
+                      >
+                        Under Admin Review
+                      </Badge>
+                    ) : (
+                      <Badge>Pending</Badge>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"

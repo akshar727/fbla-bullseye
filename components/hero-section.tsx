@@ -12,7 +12,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background marquee - absolutely positioned behind everything */}
-      <div className="absolute inset-0 z-0 hidden lg:flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
         {/* Top fade */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent z-10" />
         {/* Bottom fade */}
@@ -22,7 +22,7 @@ export function HeroSection() {
         {/* Right fade */}
         <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
 
-        <div className="flex gap-4 h-full opacity-25">
+        <div className="flex gap-4 h-full opacity-15">
           <Marquee vertical className="h-full [--duration:25s] [--gap:1rem]">
             {marqueeCards.map((i) => (
               <MarqueeCard key={`a-${i}`} />
@@ -31,13 +31,16 @@ export function HeroSection() {
           <Marquee
             vertical
             reverse
-            className="h-full [--duration:30s] [--gap:1rem]"
+            className="hidden md:flex h-full [--duration:30s] [--gap:1rem]"
           >
             {marqueeCards.map((i) => (
               <MarqueeCard key={`b-${i}`} />
             ))}
           </Marquee>
-          <Marquee vertical className="h-full [--duration:28s] [--gap:1rem]">
+          <Marquee
+            vertical
+            className="h-full [--duration:28s] [--gap:1rem] hidden md:flex lg:flex"
+          >
             {marqueeCards.map((i) => (
               <MarqueeCard key={`c-${i}`} />
             ))}
@@ -45,7 +48,7 @@ export function HeroSection() {
           <Marquee
             vertical
             reverse
-            className="h-full [--duration:32s] [--gap:1rem]"
+            className="hidden lg:flex h-full [--duration:32s] [--gap:1rem]"
           >
             {marqueeCards.map((i) => (
               <MarqueeCard key={`d-${i}`} />
@@ -55,7 +58,7 @@ export function HeroSection() {
       </div>
 
       {/* Centered hero content - on top of marquee */}
-      <div className="relative z-10 flex flex-col items-center text-center gap-8 max-w-6xl mx-auto px-6">
+      <div className="relative z-10 flex flex-col items-center text-center gap-8 max-w-full mx-auto px-6">
         {/* Typing animation headline */}
         <h1 className="text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-4">
           {"Find your "}
@@ -78,7 +81,7 @@ export function HeroSection() {
               startOnView={false}
             />
           </span>
-          <Search className="w-[1em] h-[1em]" />
+          <Search className="w-[1em] h-[1em] hidden md:block" />
         </h1>
         {/* Tagline */}
         <p className="text-muted-foreground text-lg md:text-xl font-sans tracking-wide uppercase">

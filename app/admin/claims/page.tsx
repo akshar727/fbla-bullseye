@@ -28,6 +28,7 @@ interface Claim {
   extra_descriptions: string;
   proof_of_ownerships: string[];
   created_at: string;
+  spam_likeliness: number;
   claimed_item: {
     id: string;
     name: string;
@@ -43,6 +44,13 @@ export default function ClaimsPage() {
   const [error, setError] = useState<string | null>(null);
   const [viewClaim, setViewClaim] = useState<Claim | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const spamColor = (score: number) => {
+    if (score === 0) return "bg-green-100 text-green-700";
+    if (score >= 0.85) return "bg-red-100 text-red-800";
+    if (score >= 0.7) return "bg-orange-100 text-orange-800";
+    return "bg-yellow-100 text-yellow-800";
+  };
 
   const fetchClaims = async () => {
     try {
@@ -166,6 +174,21 @@ export default function ClaimsPage() {
       label: "Filed On",
       render: (value) => {
         return new Date(String(value)).toLocaleDateString();
+      },
+    },
+    {
+      key: "spam_likeliness",
+      label: "Spam Score",
+      render: (value) => {
+        const score = value as number;
+        return (
+          <Badge
+            variant="outline"
+            className={spamColor(score) + " font-semibold"}
+          >
+            {score !== null ? `${Math.round(score * 100)}%` : "—"}
+          </Badge>
+        );
       },
     },
     {

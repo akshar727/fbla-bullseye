@@ -43,7 +43,6 @@ export async function GET() {
     `,
     )
     .eq("posted_by", user.id)
-    // .eq("status", "lost")
     .order("created_at", { ascending: false });
 
   if (error) {

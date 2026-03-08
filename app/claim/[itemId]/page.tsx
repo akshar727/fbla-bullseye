@@ -44,6 +44,7 @@ export default function ClaimItemPage({
   // Proof-of-ownership images state
   const [proofImages, setProofImages] = useState<File[]>([]);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [alreadyClaimed, setAlreadyClaimed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -59,17 +60,25 @@ export default function ClaimItemPage({
   }, [params]);
 
   useEffect(() => {
-    if (!itemId) return;
+    if (!itemId || !user) return;
     setLoading(true);
-    fetch(`/api/item/${itemId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.error) console.error("Error fetching item:", data.error);
-        else setItem(data);
+    Promise.all([
+      fetch(`/api/item/${itemId}`).then((r) => r.json()),
+      fetch("/api/claims/ongoing").then((r) => r.json()),
+    ])
+      .then(([itemData, claimsData]) => {
+        if (itemData?.error)
+          console.error("Error fetching item:", itemData.error);
+        else setItem(itemData);
+        if (Array.isArray(claimsData)) {
+          setAlreadyClaimed(
+            claimsData.some((c: any) => c.claimed_item?.id === itemId),
+          );
+        }
       })
-      .catch((err) => console.error("Error fetching item:", err))
+      .catch((err) => console.error("Error loading claim page:", err))
       .finally(() => setLoading(false));
-  }, [itemId]);
+  }, [itemId, user]);
 
   // Auth check handled in render below
 
@@ -153,6 +162,29 @@ export default function ClaimItemPage({
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center">
         <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (alreadyClaimed) {
+    return (
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center gap-4 text-center">
+        <p className="text-2xl font-bold">Claim Already Submitted</p>
+        <p className="text-muted-foreground max-w-sm">
+          You already have an active claim on this item. You can track its
+          status from your dashboard.
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/item/${itemId}`)}
+          >
+            View Item
+          </Button>
+          <Button onClick={() => router.push("/dashboard/ongoing")}>
+            View My Claims
+          </Button>
+        </div>
       </div>
     );
   }

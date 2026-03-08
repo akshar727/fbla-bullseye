@@ -140,7 +140,7 @@ export default function ChatsPage() {
                         {room.time_accepted ? (
                           <Badge
                             variant="secondary"
-                            className="text-xs gap-1 w-fit bg-green-300"
+                            className="text-xs gap-1 w-fit bg-green-100 text-green-700"
                           >
                             <BadgeCheck className="h-3 w-3" />
                             Approved by admin
@@ -148,7 +148,7 @@ export default function ChatsPage() {
                         ) : (
                           <Badge
                             variant="secondary"
-                            className="text-xs bg-yellow-300 gap-1 w-fit"
+                            className="text-xs bg-yellow-100 text-yellow-700 gap-1 w-fit"
                           >
                             <EmptyBadge className="h-3 w-3" />
                             Pending admin approval

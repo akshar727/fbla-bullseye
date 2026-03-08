@@ -5,7 +5,8 @@ import { after } from "next/server";
 import { NextResponse } from "next/server";
 import NewClaimEmail from "@/components/email/new-claim";
 import { render } from "@react-email/components";
-import { evaluateSpam } from "@/lib/spamGuard";
+import { evaluateSpam } from "@/lib/spam-guard";
+import log from "@/lib/dbLogger";
 
 export async function GET() {
   const supabase = await createClient();
@@ -77,6 +78,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // Prevent duplicate claims from the same user on the same item
+  const { data: existingClaim } = await supabase
+    .from("claims")
+    .select("id")
+    .eq("claimant", user.id)
+    .eq("claimed_item", itemId)
+    .maybeSingle();
+
+  if (existingClaim) {
+    return new Response(
+      JSON.stringify({
+        error: "You already have an active claim on this item.",
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   // Upload proof-of-ownership images to claim_images bucket
   const imageFiles = formData.getAll("proof_images") as File[];
   const proofUrls: string[] = [];
@@ -115,14 +133,6 @@ export async function POST(request: Request) {
       itemName={item.name}
     />,
   );
-  after(() =>
-    notify(
-      item.posted_by,
-      "New claim on your item: " + item.name,
-      'Someone has submitted a claim on your lost item "' + item.name + '."',
-      emailHtml,
-    ).catch((err) => console.error("Error sending notification email:", err)),
-  );
 
   const { data: claimData, error: claimError } = await supabase
     .from("claims")
@@ -140,6 +150,23 @@ export async function POST(request: Request) {
       .from("claims")
       .update({ spam_likeliness: spamLikely })
       .eq("id", claimData.id);
+  }
+  if (spamLikely < 0.6) {
+    after(() =>
+      notify(
+        item.posted_by,
+        "New claim on your item: " + item.name,
+        'Someone has submitted a claim on your lost item "' + item.name + '."',
+        emailHtml,
+      ).catch((err) => console.error("Error sending notification email:", err)),
+    );
+  } else {
+    after(() =>
+      log(
+        "Spam Detected",
+        `Claim by ${claimerName?.name ?? "Unknown User"} on "${item.name}" detected as ${(spamLikely * 100).toFixed(2)}% likely to be spam.`,
+      ).catch((err) => console.error("Error logging spam detection:", err)),
+    );
   }
 
   if (claimError) {

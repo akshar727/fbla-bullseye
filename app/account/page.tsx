@@ -154,6 +154,15 @@ export default function AccountPage() {
               <CardDescription>Update your display name.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={user?.email ?? ""}
+                  disabled
+                  className="text-muted-foreground"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="firstName">First Name</Label>

@@ -1,5 +1,8 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
+import { notify } from "@/lib/emails";
+import { render } from "@react-email/components";
+import NewClaimEmail from "@/components/email/new-claim";
 
 /**
  * GET /api/admin/claims/spam
@@ -63,6 +66,29 @@ export async function PATCH(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  const { data: claim } = await supabase
+    .from("claims")
+    .select(
+      "*, claimed_item(*, posted_by(id, name)), claimant(id, name, email)",
+    )
+    .eq("id", id)
+    .single();
+  const emailHtml = await render(
+    <NewClaimEmail
+      name={claim.claimed_item.posted_by.name.split(" ")[0] ?? "User"}
+      itemName={claim.claimed_item.name}
+    />,
+  );
+  after(() =>
+    notify(
+      claim.claimed_item.posted_by,
+      "New claim on your item: " + claim.claimed_item.name,
+      'Someone has submitted a claim on your lost item "' +
+        claim.claimed_item.name +
+        '."',
+      emailHtml,
+    ).catch((err) => console.error("Error sending notification email:", err)),
+  );
 
   return NextResponse.json({ success: true });
 }

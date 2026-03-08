@@ -158,7 +158,7 @@ export default function SpamClaimsPage() {
         return (
           <Badge
             variant="outline"
-            className={spamColor(score) + " font-mono font-semibold"}
+            className={spamColor(score) + " font-semibold"}
           >
             {score !== null ? `${Math.round(score * 100)}%` : "—"}
           </Badge>
@@ -235,9 +235,9 @@ export default function SpamClaimsPage() {
           {viewClaim && (
             <div className="space-y-4">
               {/* Spam score banner */}
-              <div className="flex items-center gap-2 rounded-md border border-orange-200 bg-orange-50 px-4 py-2 text-sm text-orange-800">
+              <div className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800">
                 <span className="font-semibold">AI Spam Score:</span>
-                <span className="font-mono font-bold text-base">
+                <span className="font-bold text-base">
                   {viewClaim.spam_likeliness !== null
                     ? `${Math.round(viewClaim.spam_likeliness * 100)}%`
                     : "—"}

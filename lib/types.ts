@@ -28,15 +28,16 @@ export type ClaimResponse = {
   extra_descriptions: string;
   proof_of_ownerships: string[];
   created_at: string;
+  spam_likeliness: number | null;
 };
 
 export type UserResponse = {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    send_email_notifs: boolean;
-    items_reported: number;
-    items_claimed: number;
-    last_active: string;
-}
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  send_email_notifs: boolean;
+  items_reported: number;
+  items_claimed: number;
+  last_active: string;
+};

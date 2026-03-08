@@ -9,14 +9,16 @@ export async function GET() {
     { count: totalUsers },
     { count: totalItems },
     { count: activeClaims },
+    { count: spamBlocked },
     { data: recentLogs },
   ] = await Promise.all([
     supabase.from("users").select("*", { count: "exact", head: true }),
     supabase.from("items").select("*", { count: "exact", head: true }),
+    supabase.from("claims").select("*", { count: "exact", head: true }),
     supabase
-      .from("claims")
+      .from("logs")
       .select("*", { count: "exact", head: true })
-      .eq("status", "pending"),
+      .eq("header", "Spam Detected"),
     supabase
       .from("logs")
       .select("header, message, created_at")
@@ -28,7 +30,7 @@ export async function GET() {
     totalUsers: totalUsers ?? 0,
     totalItems: totalItems ?? 0,
     activeClaims: activeClaims ?? 0,
-    spamBlocked: 47,
+    spamBlocked: spamBlocked ?? 0,
     recentLogs: recentLogs ?? [],
   });
 }

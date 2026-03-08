@@ -2,7 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { GoogleGenAI } from "@google/genai";
 
-const MODEL = "gemini-2.5-flash-lite-preview-06-17";
+const MODEL = "gemini-2.5-flash-lite-preview-09-2025";
 
 /**
  * Fetches the claim from Supabase and builds the evaluation prompt.
@@ -18,16 +18,12 @@ async function getPrompt(claimId: string): Promise<string> {
       extra_descriptions,
       proof_of_ownerships,
       created_at,
-      claimant:users!claims_claimant_fkey (id, name),
+      claimant (id, name),
       claimed_item:items!claim_claimed_item_fkey (
         id,
         name,
         category,
-        description,
-        status,
-        last_location,
-        date_lost,
-        date_found
+        description
       )
     `,
     )
@@ -66,13 +62,26 @@ export async function evaluateSpam(claimId: string): Promise<number> {
     config: {
       thinkingConfig: {
         thinkingBudget: -1, // dynamic thinking
-        includeThoughts: false,
+        includeThoughts: true,
       },
     },
   });
 
+  const parts = response.candidates?.[0]?.content?.parts ?? [];
+
+  // Log thinking to console
+  const thoughts = parts
+    .filter((p: { thought?: boolean }) => p.thought)
+    .map((p: { text?: string }) => p.text ?? "")
+    .join("");
+  if (thoughts) {
+    console.log(
+      `[spamGuard] Gemini thoughts for claim ${claimId}:\n${thoughts}`,
+    );
+  }
+
   // Extract only non-thought text parts
-  const text = (response.candidates?.[0]?.content?.parts ?? [])
+  const text = parts
     .filter((p: { thought?: boolean }) => !p.thought)
     .map((p: { text?: string }) => p.text ?? "")
     .join("")

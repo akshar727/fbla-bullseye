@@ -106,7 +106,7 @@ export function Navbar() {
           {/* Logo / Brand - LEFT SECTION */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="bg-white rounded-md w-8 h-8">
+              <div className="rounded-md w-8 h-8">
                 <img src="/favicon.ico" alt="Logo" className="h-8 w-8 z-10" />
               </div>
               <span className="text-xl font-bold">Bullseye</span>
@@ -125,6 +125,12 @@ export function Navbar() {
                 className="text-sm font-medium transition-colors hover:text-primary"
               >
                 Report a Found Item
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                Contact
               </Link>
             </div>
           </div>
@@ -228,8 +234,8 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/help" className="w-full">
-                      Help & Support
+                    <Link href="/contact" className="w-full">
+                      Help &amp; Support
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -282,6 +288,13 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Report a Found Item
+            </Link>
+            <Link
+              href="/contact"
+              className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-md"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
             </Link>
 
             <div className="border-t pt-3 mt-3 space-y-2">

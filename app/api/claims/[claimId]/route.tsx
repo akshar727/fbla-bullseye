@@ -250,7 +250,7 @@ export async function PATCH(
     if (count === 0) {
       await supabase
         .from("items")
-        .update({ status: "lost" })
+        .update({ status: "unclaimed" })
         .eq("id", claim.claimed_item.id);
     }
 
