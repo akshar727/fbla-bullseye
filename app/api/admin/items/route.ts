@@ -120,7 +120,7 @@ export async function PATCH(request: Request) {
 
   const { error } = await supabase
     .from("items")
-    .update({ status: "found", date_found: now, date_returned: now })
+    .update({ status: "found", date_returned: now })
     .eq("id", id);
 
   if (error) {

@@ -159,7 +159,8 @@ export default function BrowsePage() {
                 category={item.category}
                 description={item.description}
                 location={item.last_location}
-                date={item.date_lost}
+                foundDate={item.date_lost}
+                returnDate={item.date_returned}
                 postedBy={item.posted_by?.name}
                 imageUrl={item.image_urls?.[0]}
                 underAdminReview={

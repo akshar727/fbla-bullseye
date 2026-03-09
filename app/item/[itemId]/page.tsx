@@ -231,13 +231,28 @@ export default function ItemPage({
               )}
               {item.date_lost && (
                 <p>
-                  Lost on{" "}
+                  Found on{" "}
                   <span className="text-foreground">
                     {new Date(item.date_lost).toLocaleDateString(undefined, {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
                     })}
+                  </span>
+                </p>
+              )}
+              {item.date_returned && (
+                <p>
+                  Returned on{" "}
+                  <span className="text-foreground">
+                    {new Date(item.date_returned).toLocaleDateString(
+                      undefined,
+                      {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      },
+                    )}
                   </span>
                 </p>
               )}
@@ -402,7 +417,8 @@ export default function ItemPage({
                     category={related.category}
                     description={related.description}
                     location={related.last_location}
-                    date={related.date_lost}
+                    foundDate={related.date_lost}
+                    returnDate={(related as any).date_returned ?? null}
                     postedBy={(related.posted_by as any)?.name}
                     imageUrl={related.image_urls?.[0] ?? null}
                     onClick={() => router.push(`/item/${related.id}`)}

@@ -196,7 +196,8 @@ export function MarqueeCard() {
       category={item.category}
       description={item.description}
       location={item.location}
-      date={item.date}
+      foundDate={item.date}
+      returnDate={item.date}
       postedBy={item.poster}
     />
   );

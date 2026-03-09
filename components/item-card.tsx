@@ -22,7 +22,8 @@ export interface ItemCardProps {
   category: string;
   description?: string | null;
   location?: string | null;
-  date?: string | null;
+  foundDate?: string | null;
+  returnDate?: string | null;
   postedBy?: string | null;
   imageUrl?: string | null;
   onClick?: () => void;
@@ -36,7 +37,8 @@ export function ItemCard({
   category,
   description,
   location,
-  date,
+  foundDate,
+  returnDate,
   postedBy,
   imageUrl,
   onClick,
@@ -97,16 +99,27 @@ export function ItemCard({
             </p>
           )}
 
-          {date && (
-            <p className="text-xs text-muted-foreground">
-              Found on{" "}
-              {new Date(date).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </p>
-          )}
+          {status === "found"
+            ? returnDate && (
+                <p className="text-xs text-muted-foreground">
+                  Returned on{" "}
+                  {new Date(returnDate).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+              )
+            : foundDate && (
+                <p className="text-xs text-muted-foreground">
+                  Found on{" "}
+                  {new Date(foundDate).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
 
           {postedBy && (
             <p className="text-xs text-muted-foreground">

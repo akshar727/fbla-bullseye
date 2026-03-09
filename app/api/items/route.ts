@@ -119,7 +119,6 @@ export async function POST(request: Request) {
       status: "unclaimed",
       last_location,
       date_lost: date_lost || null,
-      date_found: null,
       image_urls: imageUrls,
       num_images: imageUrls.length,
       posted_by: user.id,

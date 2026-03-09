@@ -7,7 +7,6 @@ export type ItemResponse = {
   created_at: string;
   last_location: string;
   date_lost: string | null;
-  date_found: string | null;
   image_urls: string[];
   num_images: number;
   posted_by: {
