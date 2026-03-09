@@ -249,6 +249,7 @@ export default function ChatPage() {
           <p className="text-xs text-muted-foreground">
             Re: {room.claim.claimed_item.name}
           </p>
+
           {room.claim.time_accepted && (
             <Badge variant="secondary" className="mt-1 text-xs gap-1 w-fit">
               ✓ Approved by admin: {formatDateTime(room.claim.time_accepted)}
@@ -280,6 +281,16 @@ export default function ChatPage() {
             Propose Time
           </Button>
         </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+        <p>
+          Use this chat to communicate with {other?.name ?? "the other person"}{" "}
+          and coordinate a time to meet at the{" "}
+          <strong className="text-foreground">Front Office</strong> to exchange
+          the item in front of an admin.
+        </p>
       </div>
 
       {/* Messages */}

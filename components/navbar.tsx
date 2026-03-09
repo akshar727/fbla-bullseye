@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Menu, X, Search, Bell, User } from "lucide-react";
+import { Menu, X, Bell } from "lucide-react";
 import { Badge } from "./ui/badge";
 
 type Notification = {
@@ -68,6 +68,7 @@ function NotificationList({
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [mobileNotifOpen, setMobileNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user, u_loading, isAdmin } = useUser();
 
@@ -213,7 +214,10 @@ export function Navbar() {
                     className="hidden md:flex relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={user.user_metadata.avatar_url} />
+                      <AvatarImage
+                        src={user.user_metadata.avatar_url}
+                        alt={user.user_metadata.full_name || user.email}
+                      />
                       <AvatarFallback>
                         {user?.user_metadata?.full_name
                           ?.split(" ")
@@ -228,6 +232,17 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.user_metadata.full_name || "My Account"}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link href="/account" className="w-full">
                       My Account
@@ -239,7 +254,7 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="text-destructive cursor-pointer"
+                    className="text-destructive cursor-pointer pl-2"
                     onClick={async () => {
                       const { createClient } =
                         await import("@/lib/supabase/client");
@@ -298,40 +313,133 @@ export function Navbar() {
             </Link>
 
             <div className="border-t pt-3 mt-3 space-y-2">
-              {/* Mobile Action Buttons */}
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                size="sm"
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                size="sm"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                Notifications
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                size="sm"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-              <Button className="w-full mt-2" size="sm" asChild>
-                <Link href={user ? "/dashboard" : "/login"}>
+              {/* Notifications (logged-in only) — inline on mobile */}
+              {user && (
+                <div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    size="sm"
+                    onClick={() => {
+                      if (!mobileNotifOpen) markAllRead();
+                      setMobileNotifOpen((v) => !v);
+                    }}
+                  >
+                    <div className="relative w-fit mr-2">
+                      <Bell className="h-4 w-4" />
+                      {unreadCount > 0 && (
+                        <Badge className="absolute -top-2.5 -right-2.5 h-4 min-w-4 px-0.5 tabular-nums bg-red-500 text-white text-[10px]">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                    Notifications
+                    {unreadCount > 0 && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </Button>
+                  {mobileNotifOpen && (
+                    <div className="mt-1 border rounded-lg overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Notifications
+                        </p>
+                      </div>
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                          No notifications yet.
+                        </div>
+                      ) : notifications.length > 4 ? (
+                        <ScrollArea className="h-72">
+                          <NotificationList notifications={notifications} />
+                        </ScrollArea>
+                      ) : (
+                        <NotificationList notifications={notifications} />
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Dashboard / Login */}
+              <Button className="w-full" size="sm" asChild>
+                <Link
+                  href={user ? "/dashboard" : "/login"}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   {user ? "Dashboard" : "Login"}
                 </Link>
               </Button>
+
+              {/* Admin */}
               {isAdmin && (
                 <Button className="w-full" size="sm" variant="outline" asChild>
-                  <Link href="/admin">Admin</Link>
+                  <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                    Admin
+                  </Link>
                 </Button>
+              )}
+
+              {/* User info + logout */}
+              {!u_loading && user && (
+                <>
+                  <div className="flex items-center gap-3 px-1 py-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={user.user_metadata.avatar_url}
+                        alt={user.user_metadata.full_name || user.email}
+                      />
+                      <AvatarFallback>
+                        {user?.user_metadata?.full_name
+                          ?.split(" ")
+                          .map((n: string) => n[0])
+                          .join("")
+                          .substring(0, 2)
+                          .toUpperCase() ||
+                          user?.email?.[0]?.toUpperCase() ||
+                          "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-medium truncate">
+                        {user.user_metadata.full_name || "My Account"}
+                      </span>
+                      <span className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                  <Link
+                    href="/account"
+                    className="block px-2 py-1.5 text-sm font-medium hover:bg-accent rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Account
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="block px-2 py-1.5 text-sm font-medium hover:bg-accent rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Help &amp; Support
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive"
+                    size="sm"
+                    onClick={async () => {
+                      const { createClient } =
+                        await import("@/lib/supabase/client");
+                      const supabase = createClient();
+                      await supabase.auth.signOut();
+                      window.location.href = "/";
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </>
               )}
             </div>
           </div>

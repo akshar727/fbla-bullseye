@@ -11,7 +11,7 @@ from collections import defaultdict
 # Directories to skip
 SKIP_DIRS = {
     'node_modules', '.next', '.git', 'dist', 'build', 
-    '__pycache__', '.vscode', '.idea', 'venv', 'env', '.vercel'
+    '__pycache__', '.vscode', '.idea', 'venv', 'env', '.vercel', '.unlighthouse'
 }
 
 # File extensions to count as code

@@ -129,12 +129,20 @@ export default function Footer() {
             © {new Date().getFullYear()} Hickory Ridge High School — Bullseye.
             All rights reserved.
           </p>
-          <Link
-            href="/tos"
-            className="hover:text-primary-foreground transition-colors underline underline-offset-4"
-          >
-            Terms of Service
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/tos"
+              className="hover:text-primary-foreground transition-colors underline underline-offset-4"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              href="/privacy"
+              className="hover:text-primary-foreground transition-colors underline underline-offset-4"
+            >
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

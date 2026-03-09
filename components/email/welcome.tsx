@@ -122,7 +122,7 @@ export default function WelcomeEmail({ name = "" }: WelcomeEmailProps) {
               </Text>
               <Row>
                 <Column className="px-[20px] text-center">
-                  <Link href="https://bullseye-ashen.vercel.app/unsubscribe">
+                  <Link href="https://bullseye-ashen.vercel.app/account">
                     Unsubscribe
                   </Link>
                 </Column>

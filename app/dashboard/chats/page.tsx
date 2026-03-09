@@ -120,7 +120,7 @@ export default function ChatsPage() {
                       </CardDescription>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <div className="flex flex-row gap-1">
+                      <div className="flex lg:flex-row items-end flex-col gap-1">
                         {room.proposed_time && (
                           <Badge
                             variant="secondary"
@@ -140,7 +140,7 @@ export default function ChatsPage() {
                         {room.time_accepted ? (
                           <Badge
                             variant="secondary"
-                            className="text-xs gap-1 w-fit bg-green-100 text-green-700"
+                            className="text-xs gap-1 w-fit bg-emerald-100 text-emerald-800 border-emerald-200"
                           >
                             <BadgeCheck className="h-3 w-3" />
                             Approved by admin
