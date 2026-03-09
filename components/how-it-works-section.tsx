@@ -3,6 +3,7 @@ import { Upload, UserCheck, HandCoins, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { AuroraText } from "./ui/aurora-text";
 
 const steps = [
   {
@@ -39,11 +40,11 @@ export function HowItWorksSection() {
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-16 md:mb-20">
-          <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-3 font-sans">
+          <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-3 font-mono">
             How it works
           </p>
           <h2 className="text-primary text-3xl md:text-6xl font-bold font-sans text-balance">
-            Post. Claim. Retrieve.
+            Post. Claim. <AuroraText>Retrieve.</AuroraText>
           </h2>
         </div>
 

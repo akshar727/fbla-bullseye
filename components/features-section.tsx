@@ -35,11 +35,11 @@ export function FeaturesSection() {
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-16 md:mb-20">
-          <p className="font-semibold text-sm uppercase tracking-widest mb-3 font-sans">
+          <p className="font-semibold text-sm uppercase tracking-widest mb-3 font-mono">
             Features
           </p>
           <h2 className="text-3xl md:text-6xl font-bold font-sans text-balance">
-            Built for speed, accuracy, and <AuroraText>trust</AuroraText>.
+            Built for speed, accuracy, and <AuroraText>trust.</AuroraText>
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg leading-relaxed font-sans">
             Every feature is designed to get lost items back to their owners as

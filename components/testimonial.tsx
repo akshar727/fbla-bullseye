@@ -1,10 +1,11 @@
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import type { ReactNode } from "react";
 
 export interface TestimonialProps {
   name: string;
   rating: number;
-  quote: string;
+  quote: ReactNode;
   avatarUrl?: string;
 }
 
@@ -17,7 +18,7 @@ export function Testimonial({
   const clampedRating = Math.min(5, Math.max(0, Math.round(rating)));
 
   return (
-    <Card className="flex flex-col gap-4 p-6 bg-white shadow-sm h-full">
+    <Card className="flex flex-col gap-4 p-6 bg-white shadow-none h-full">
       <CardContent className="p-0 flex flex-col gap-4">
         {/* Stars */}
         <div className="flex items-center gap-0.5">
@@ -26,7 +27,7 @@ export function Testimonial({
               key={i}
               className={`size-4 ${
                 i < clampedRating
-                  ? "fill-primary text-primary"
+                  ? "fill-amber-400 text-amber-400"
                   : "fill-muted text-muted"
               }`}
             />

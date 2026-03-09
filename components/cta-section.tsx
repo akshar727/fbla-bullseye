@@ -5,7 +5,7 @@ import { FlickeringGrid } from "./ui/flickering-grid";
 
 export function CtaSection() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32 px-6 bg-gray-50">
+    <section className="relative overflow-hidden py-24 md:py-32 px-6">
       <FlickeringGrid
         className="absolute inset-0 z-0 size-full [mask-image:radial-gradient(450px_circle_at_center,white,transparent)]"
         squareSize={4}
@@ -19,7 +19,7 @@ export function CtaSection() {
           Ready to find what you lost?
         </h2>
         <p className="text-navy-600 mt-4 text-lg leading-relaxed font-sans max-w-xl mx-auto">
-          Join thousands of people already reuniting with their belongings
+          Join hundreds of people already reuniting with their belongings
           through Bullseye.
         </p>
 

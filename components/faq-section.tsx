@@ -39,11 +39,11 @@ export function FaqSection() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 md:mb-20">
-          <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-3">
+          <p className="text-primary font-mono font-semibold text-sm uppercase tracking-widest mb-3">
             FAQ
           </p>
           <h2 className="text-primary text-3xl md:text-6xl font-bold text-balance">
-            Frequently asked questions.
+            Frequently asked questions
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-lg leading-relaxed">
             Everything you need to know about using Bullseye.
@@ -52,8 +52,12 @@ export function FaqSection() {
 
         <Accordion type="single" collapsible className="w-full space-y-2">
           {FAQS.map((faq, i) => (
-            <AccordionItem key={i} value={`item-${i}`} className="">
-              <AccordionTrigger className="text-left font-semibold text-base hover:no-underline">
+            <AccordionItem
+              key={i}
+              value={`item-${i}`}
+              className="border rounded-xl px-5"
+            >
+              <AccordionTrigger className="text-left font-semibold text-base py-5 hover:no-underline">
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
