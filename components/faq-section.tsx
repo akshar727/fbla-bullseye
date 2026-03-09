@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "motion/react";
 import {
   Accordion,
   AccordionContent,
@@ -38,7 +41,13 @@ export function FaqSection() {
     <section className="py-24 md:py-32 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 md:mb-20"
+        >
           <p className="text-primary font-mono font-semibold text-sm uppercase tracking-widest mb-3">
             FAQ
           </p>
@@ -48,24 +57,31 @@ export function FaqSection() {
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-lg leading-relaxed">
             Everything you need to know about using Bullseye.
           </p>
-        </div>
+        </motion.div>
 
-        <Accordion type="single" collapsible className="w-full space-y-2">
-          {FAQS.map((faq, i) => (
-            <AccordionItem
-              key={i}
-              value={`item-${i}`}
-              className="border rounded-xl px-5"
-            >
-              <AccordionTrigger className="text-left font-semibold text-base py-5 hover:no-underline">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Accordion type="single" collapsible className="w-full space-y-2">
+            {FAQS.map((faq, i) => (
+              <AccordionItem
+                key={i}
+                value={`item-${i}`}
+                className="border rounded-xl px-5"
+              >
+                <AccordionTrigger className="text-left font-semibold text-base py-5 hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </motion.div>
       </div>
     </section>
   );

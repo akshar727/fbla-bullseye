@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { Testimonial } from "@/components/testimonial";
 import {
   ScrollVelocityContainer,
@@ -126,7 +127,13 @@ export function TestimonialSection() {
   return (
     <section className="relative overflow-hidden py-24 md:py-32 bg-muted/30">
       <div className="relative z-10">
-        <div className="max-w-6xl mx-auto px-6 mb-16 md:mb-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-6xl mx-auto px-6 mb-16 md:mb-20 text-center"
+        >
           <p className="text-primary font-mono font-semibold text-sm uppercase tracking-widest mb-3">
             Testimonials
           </p>
@@ -138,7 +145,7 @@ export function TestimonialSection() {
             Real stories from people who&apos;ve used Bullseye to reunite lost
             items with their owners.
           </p>
-        </div>
+        </motion.div>
 
         <ScrollVelocityContainer className="flex flex-col gap-6 py-4">
           <ScrollVelocityRow baseVelocity={5} direction={1}>

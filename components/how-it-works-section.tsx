@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "motion/react";
 import Link from "next/link";
 import { Upload, UserCheck, HandCoins, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,17 +42,29 @@ export function HowItWorksSection() {
       />
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Section header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 md:mb-20"
+        >
           <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-3 font-mono">
             How it works
           </p>
           <h2 className="text-primary text-3xl md:text-6xl font-bold font-sans text-balance">
             Post. Claim. <AuroraText>Retrieve.</AuroraText>
           </h2>
-        </div>
+        </motion.div>
 
         {/* Steps grid */}
-        <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid md:grid-cols-3 gap-8 md:gap-12"
+        >
           {steps.map((step, i) => (
             <Card key={step.title} className="shadow-none">
               <CardHeader>
@@ -70,17 +85,23 @@ export function HowItWorksSection() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </motion.div>
 
         {/* CTA */}
-        <div className="mt-16 md:mt-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-16 md:mt-20 text-center"
+        >
           <Button size="lg" className="font-semibold" asChild>
             <Link href="/signup">
               Get started now
               <ArrowRight className="size-5" />
             </Link>
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

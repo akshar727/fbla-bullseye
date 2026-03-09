@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { TypingAnimation } from "@/components/ui/typing-animation";
 import { Marquee } from "@/components/ui/marquee";
 import { MarqueeCard } from "@/components/marquee-card";
@@ -60,7 +61,12 @@ export function HeroSection() {
       {/* Centered hero content - on top of marquee */}
       <div className="relative z-10 flex flex-col items-center text-center gap-8 max-w-full mx-auto px-6">
         {/* Typing animation headline */}
-        <h1 className="text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-2 md:gap-4">
+        <motion.h1
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-2 md:gap-4"
+        >
           {"Find your "}
           <span className="inline-block min-w-[3ch]">
             <TypingAnimation
@@ -82,13 +88,23 @@ export function HeroSection() {
             />
           </span>
           <Search className="w-[1em] h-[1em] hidden md:block" />
-        </h1>
+        </motion.h1>
         {/* Tagline */}
-        <p className="text-muted-foreground text-lg md:text-xl font-sans tracking-wide uppercase">
+        <motion.p
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-muted-foreground text-lg md:text-xl font-sans tracking-wide uppercase"
+        >
           Pinpoint your lost items within seconds.
-        </p>
+        </motion.p>
         {/* CTA buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="flex flex-col sm:flex-row items-center gap-4 mt-4"
+        >
           <Button size="lg" asChild>
             <a href="/signup">Sign Up</a>
           </Button>
@@ -98,7 +114,7 @@ export function HeroSection() {
               <ArrowRight className="size-5 ml-1" />
             </a>
           </Button>
-        </div>
+        </motion.div>
 
         {/* Trust signal */}
         <p className="text-muted-foreground text-sm mt-4 font-sans">

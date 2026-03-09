@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "motion/react";
 import { FileCheck2, Sparkles, MessagesSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -34,7 +37,13 @@ export function FeaturesSection() {
     <section className="py-24 md:py-32 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 md:mb-20"
+        >
           <p className="font-semibold text-sm uppercase tracking-widest mb-3 font-mono">
             Features
           </p>
@@ -45,10 +54,16 @@ export function FeaturesSection() {
             Every feature is designed to get lost items back to their owners as
             fast as possible while keeping the platform clean and safe.
           </p>
-        </div>
+        </motion.div>
 
         {/* Feature cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid md:grid-cols-2 gap-6"
+        >
           {features.map((feature) => (
             <Card key={feature.title} className="flex flex-col shadow-none">
               <CardHeader>
@@ -64,7 +79,7 @@ export function FeaturesSection() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
