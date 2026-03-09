@@ -32,7 +32,7 @@ export function HeroSection() {
           <Marquee
             vertical
             reverse
-            className="hidden md:flex h-full [--duration:30s] [--gap:1rem]"
+            className="hidden sm:flex h-full [--duration:30s] [--gap:1rem]"
           >
             {marqueeCards.map((i) => (
               <MarqueeCard key={`b-${i}`} />
@@ -65,7 +65,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-2 md:gap-4"
+          className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold font-sans leading-tight text-balance flex items-center justify-center gap-2 md:gap-4"
         >
           {"Find your "}
           <span className="inline-block min-w-[3ch]">
@@ -87,16 +87,16 @@ export function HeroSection() {
               startOnView={false}
             />
           </span>
-          <Search className="w-[1em] h-[1em] hidden md:block" />
+          <Search className="w-[1em] h-[1em] hidden sm:block" />
         </motion.h1>
         {/* Tagline */}
         <motion.p
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-muted-foreground text-lg md:text-xl font-sans tracking-wide uppercase"
+          className="text-muted-foreground text-xs md:text-xl font-mono tracking-wide uppercase"
         >
-          Pinpoint your lost items within seconds.
+          Pinpoint your lost items within seconds
         </motion.p>
         {/* CTA buttons */}
         <motion.div

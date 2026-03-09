@@ -29,6 +29,7 @@ export interface ItemCardProps {
   onClick?: () => void;
   className?: string;
   underAdminReview?: boolean;
+  showNoImageText?: boolean;
 }
 
 export function ItemCard({
@@ -44,6 +45,7 @@ export function ItemCard({
   onClick,
   className = "",
   underAdminReview = false,
+  showNoImageText = true,
 }: ItemCardProps) {
   return (
     <Card
@@ -57,7 +59,7 @@ export function ItemCard({
           <img src={imageUrl} alt={name} className="h-40 w-full object-cover" />
         ) : (
           <div className="h-40 w-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
-            No image
+            {showNoImageText ? "No image" : null}
           </div>
         )}
 
