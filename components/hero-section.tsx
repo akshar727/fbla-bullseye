@@ -6,10 +6,12 @@ import { Marquee } from "@/components/ui/marquee";
 import { MarqueeCard } from "@/components/marquee-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Search } from "lucide-react";
+import { useUser } from "@/hooks/use-user";
 
 const marqueeCards = Array.from({ length: 6 }, (_, i) => i);
 
 export function HeroSection() {
+  const { user } = useUser();
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background marquee - absolutely positioned behind everything */}
@@ -106,7 +108,9 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center gap-4 mt-4"
         >
           <Button size="lg" asChild>
-            <a href="/signup">Sign Up</a>
+            <a href={user ? "/dashboard" : "/signup"}>
+              {user ? "Open Dashboard" : "Sign Up"}
+            </a>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <a href="/browse">
@@ -117,9 +121,14 @@ export function HeroSection() {
         </motion.div>
 
         {/* Trust signal */}
-        <p className="text-muted-foreground text-sm mt-4 font-sans">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.1 }}
+          className="text-muted-foreground text-sm mt-4 font-sans"
+        >
           Trusted by hundreds of students
-        </p>
+        </motion.p>
       </div>
     </section>
   );

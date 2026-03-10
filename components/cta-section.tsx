@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { FlickeringGrid } from "./ui/flickering-grid";
+import { useUser } from "@/hooks/use-user";
 
 export function CtaSection() {
+  const { user } = useUser();
   return (
     <section className="relative overflow-hidden py-24 md:py-32 px-6">
       <FlickeringGrid
@@ -50,7 +52,9 @@ export function CtaSection() {
             className="bg-primary text-white hover:bg-primary/90 font-semibold"
             asChild
           >
-            <Link href="/signup">Sign Up</Link>
+            <Link href={user ? "/dashboard" : "/signup"}>
+              {user ? "Open Dashboard" : "Sign Up"}
+            </Link>
           </Button>
           <Button size="lg" asChild variant="outline" className="font-semibold">
             <Link href="/browse">

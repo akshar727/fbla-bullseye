@@ -135,7 +135,7 @@ export default function ClaimItemPage({
         toast.error(data?.error ?? "Failed to submit claim.");
       } else {
         toast.success("Claim submitted successfully!");
-        router.push(`/item/${itemId}`);
+        router.push(`/dashboard/ongoing`);
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
