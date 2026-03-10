@@ -142,6 +142,12 @@ export default function Footer() {
             >
               Privacy Policy
             </Link>
+            <Link
+              href="/sources"
+              className="hover:text-primary-foreground transition-colors underline underline-offset-4"
+            >
+              Sources
+            </Link>
           </div>
         </div>
       </div>

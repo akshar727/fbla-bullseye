@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { ItemCard } from "@/components/item-card";
 import type { ItemResponse } from "@/lib/types";
 import Footer from "@/components/footer";
+import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
 
 const STATUS_STYLES: Record<string, string> = {
   unclaimed: "bg-red-100 text-red-700 border-red-200",
@@ -208,13 +209,23 @@ export default function ItemPage({
             <div className="flex items-start gap-3 flex-wrap">
               <h1 className="text-2xl font-bold flex-1">{item.name}</h1>
               <span
-                className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${STATUS_STYLES[item.status] ?? ""}`}
+                className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize inline-flex items-center gap-1 ${STATUS_STYLES[item.status] ?? ""}`}
               >
+                {STATUS_ICONS[item.status] &&
+                  (() => {
+                    const Icon = STATUS_ICONS[item.status];
+                    return <Icon className="size-3" />;
+                  })()}
                 {item.status}
               </span>
             </div>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground inline-flex items-center gap-1">
+              {CATEGORY_ICONS[item.category] &&
+                (() => {
+                  const Icon = CATEGORY_ICONS[item.category];
+                  return <Icon className="size-3.5" />;
+                })()}
               {getCategoryLabel(item.category)}
             </p>
 

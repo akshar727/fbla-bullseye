@@ -19,6 +19,8 @@ import {
 } from "@/components/admin/data-table";
 import { Eye, RotateCcw, Trash2 } from "lucide-react";
 import { spamColor } from "@/lib/utils";
+import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
+import { getCategoryLabel } from "@/lib/categories";
 
 interface SpamClaim {
   id: string;
@@ -248,7 +250,14 @@ function SpamClaimsTab() {
                   <p className="font-medium text-muted-foreground">
                     Item Status
                   </p>
-                  <p className="capitalize">
+                  <p className="capitalize inline-flex items-center gap-1">
+                    {viewClaim.claimed_item?.status &&
+                      STATUS_ICONS[viewClaim.claimed_item.status] &&
+                      (() => {
+                        const StatusIcon =
+                          STATUS_ICONS[viewClaim.claimed_item!.status];
+                        return <StatusIcon className="size-3.5" />;
+                      })()}
                     {viewClaim.claimed_item?.status || "Unknown"}
                   </p>
                 </div>
@@ -433,11 +442,19 @@ function SpamItemsTab() {
     {
       key: "category",
       label: "Category",
-      render: (value) => (
-        <Badge variant="outline" className="capitalize">
-          {String(value)}
-        </Badge>
-      ),
+      render: (value) => {
+        const cat = String(value);
+        const CatIcon = CATEGORY_ICONS[cat];
+        return (
+          <Badge
+            variant="outline"
+            className="capitalize inline-flex items-center gap-1"
+          >
+            {CatIcon && <CatIcon className="size-3" />}
+            {getCategoryLabel(cat)}
+          </Badge>
+        );
+      },
     },
     {
       key: "spam_likeliness",
@@ -534,13 +551,28 @@ function SpamItemsTab() {
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Category</p>
-                  <Badge variant="outline" className="capitalize mt-0.5">
-                    {viewItem.category}
+                  <Badge
+                    variant="outline"
+                    className="capitalize mt-0.5 inline-flex items-center gap-1"
+                  >
+                    {CATEGORY_ICONS[viewItem.category] &&
+                      (() => {
+                        const CatIcon = CATEGORY_ICONS[viewItem.category];
+                        return <CatIcon className="size-3" />;
+                      })()}
+                    {getCategoryLabel(viewItem.category)}
                   </Badge>
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Status</p>
-                  <p className="capitalize">{viewItem.status}</p>
+                  <p className="capitalize inline-flex items-center gap-1">
+                    {STATUS_ICONS[viewItem.status] &&
+                      (() => {
+                        const StatusIcon = STATUS_ICONS[viewItem.status];
+                        return <StatusIcon className="size-3.5" />;
+                      })()}
+                    {viewItem.status}
+                  </p>
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Location</p>

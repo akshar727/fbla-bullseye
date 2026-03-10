@@ -67,6 +67,7 @@ export async function updateSession(request: NextRequest) {
     "/contact",
     "/privacy",
     "/404",
+    "/sources",
   ];
   const isPublic = publicPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p),

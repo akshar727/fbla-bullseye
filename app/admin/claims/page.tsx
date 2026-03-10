@@ -18,6 +18,7 @@ import {
 } from "@/components/admin/data-table";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
 import { spamColor } from "@/lib/utils";
+import { STATUS_ICONS } from "@/lib/status-category-icons";
 
 interface Claim {
   id: string;
@@ -45,7 +46,6 @@ export default function ClaimsPage() {
   const [error, setError] = useState<string | null>(null);
   const [viewClaim, setViewClaim] = useState<Claim | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-
 
   const fetchClaims = async () => {
     try {
@@ -157,8 +157,13 @@ export default function ClaimsPage() {
               : status === "claimed"
                 ? "bg-yellow-100 text-yellow-800"
                 : "";
+        const StatusIcon = STATUS_ICONS[status];
         return (
-          <Badge variant="outline" className={className + " capitalize"}>
+          <Badge
+            variant="outline"
+            className={className + " capitalize inline-flex items-center gap-1"}
+          >
+            {StatusIcon && <StatusIcon className="size-3" />}
             {status}
           </Badge>
         );
@@ -250,7 +255,14 @@ export default function ClaimsPage() {
                   <p className="font-medium text-muted-foreground">
                     Item Status
                   </p>
-                  <p className="capitalize">
+                  <p className="capitalize inline-flex items-center gap-1">
+                    {viewClaim.claimed_item?.status &&
+                      STATUS_ICONS[viewClaim.claimed_item.status] &&
+                      (() => {
+                        const StatusIcon =
+                          STATUS_ICONS[viewClaim.claimed_item!.status];
+                        return <StatusIcon className="size-3.5" />;
+                      })()}
                     {viewClaim.claimed_item?.status || "Unknown"}
                   </p>
                 </div>

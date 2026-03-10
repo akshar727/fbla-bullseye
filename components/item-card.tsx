@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { getCategoryLabel } from "@/lib/categories";
+import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
 
 const STATUS_COLORS: Record<string, string> = {
   unclaimed: "bg-red-100 text-red-700",
@@ -15,6 +16,8 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
   documents: "bg-emerald-100 text-emerald-700",
   personal: "bg-violet-100 text-violet-700",
 };
+
+
 
 export interface ItemCardProps {
   name: string;
@@ -77,13 +80,23 @@ export function ItemCard({
           </h2>
           <div className="flex flex-row gap-1 shrink-0">
             <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_COLORS[status] ?? "bg-slate-100 text-slate-700"}`}
+              className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize inline-flex items-center gap-1 ${STATUS_COLORS[status] ?? "bg-slate-100 text-slate-700"}`}
             >
+              {STATUS_ICONS[status] &&
+                (() => {
+                  const Icon = STATUS_ICONS[status];
+                  return <Icon className="size-3" />;
+                })()}
               {status}
             </span>
             <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[category] ?? "bg-slate-100 text-slate-700"}`}
+              className={`text-xs font-medium px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${CATEGORY_BADGE_COLORS[category] ?? "bg-slate-100 text-slate-700"}`}
             >
+              {CATEGORY_ICONS[category] &&
+                (() => {
+                  const Icon = CATEGORY_ICONS[category];
+                  return <Icon className="size-3" />;
+                })()}
               {getCategoryLabel(category)}
             </span>
           </div>
