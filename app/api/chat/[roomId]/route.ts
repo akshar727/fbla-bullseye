@@ -10,8 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ roomId: string }> },
 ) {
   const supabase = await createClient();
+  // get the room id from the get parameters
   const { roomId } = await params;
-
+  // fetch user information from Supabase
   const {
     data: { user },
     error: authError,
@@ -19,12 +20,12 @@ export async function GET(
   if (authError || !user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-
+  // fetch the room information given the room id
   const { data: room, error: roomError } = await supabase
     .from("rooms")
     .select(
       `
-      id, proposed_time, time_accepted, created_at,        time_accepted,
+      id, proposed_time, time_accepted, created_at,time_accepted,
       user1:users!rooms_user1_fkey (id, name),
       user2:users!rooms_user2_fkey (id, name),
       claim:claims!rooms_claim_fkey (
@@ -35,18 +36,18 @@ export async function GET(
     )
     .eq("id", roomId)
     .single();
-
+  // Error handling
   if (roomError || !room) {
     console.log(roomError);
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
-
+  // Get the two users and check whether the currently authenticated user
   const u1 = room.user1 as any;
   const u2 = room.user2 as any;
   if (u1.id !== user.id && u2.id !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
+  // get the messages of the room
   const { data: messages, error: msgError } = await supabase
     .from("messages")
     .select(
@@ -58,7 +59,7 @@ export async function GET(
   if (msgError) {
     return NextResponse.json({ error: msgError.message }, { status: 500 });
   }
-
+  // return the room and messages associated with it
   return NextResponse.json({ room, messages });
 }
 
@@ -72,8 +73,9 @@ export async function POST(
   { params }: { params: Promise<{ roomId: string }> },
 ) {
   const supabase = await createClient();
+  // get the room id from get parameters
   const { roomId } = await params;
-
+  // get the user
   const {
     data: { user },
     error: authError,
@@ -81,7 +83,7 @@ export async function POST(
   if (authError || !user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-
+  // get the message data
   const body = await request.json();
   const content = String(body?.content ?? "").trim();
   if (!content) {
@@ -98,10 +100,11 @@ export async function POST(
   if (roomError || !room) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
+  // check if the user is one of the two users in the room
   if (room.user1 !== user.id && room.user2 !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
+  // add the new message to the database
   const { data: message, error: insertError } = await supabase
     .from("messages")
     .insert({ room: roomId, sender: user.id, content })

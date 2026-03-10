@@ -16,6 +16,7 @@ import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 import Footer from "@/components/footer";
 
+// Zod schema for the claim form which enforces minimum character limits
 const claimFormSchema = z.object({
   uniqueIdentifiers: z
     .string()
@@ -35,15 +36,17 @@ export default function ClaimItemPage({
   const router = useRouter();
   const { user, u_loading } = useUser();
 
-  const [item, setItem] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [itemId, setItemId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeImage, setActiveImage] = useState(0);
+  const [item, setItem] = useState<any>(null);     // The found item being claimed
+  const [loading, setLoading] = useState(true);     // True while item + claims data is fetching
+  const [itemId, setItemId] = useState<string | null>(null); // Resolved from the async route params
+  const [isSubmitting, setIsSubmitting] = useState(false);   // Disables the submit button while the API call is in flight
+  const [activeImage, setActiveImage] = useState(0); // Index of the currently displayed image in the gallery
 
-  // Proof-of-ownership images state
+  // Files the user has selected as proof of ownership
   const [proofImages, setProofImages] = useState<File[]>([]);
+  // Token returned by reCAPTCHA after the user solves the challenge
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // True if the user already has an open claim on this item
   const [alreadyClaimed, setAlreadyClaimed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +65,8 @@ export default function ClaimItemPage({
   useEffect(() => {
     if (!itemId || !user) return;
     setLoading(true);
+    // Fetch the item details and the user's ongoing claims in parallel to
+    // minimise wait time before the page can render.
     Promise.all([
       fetch(`/api/item/${itemId}`).then((r) => r.json()),
       fetch("/api/claims/ongoing").then((r) => r.json()),
@@ -70,6 +75,7 @@ export default function ClaimItemPage({
         if (itemData?.error)
           console.error("Error fetching item:", itemData.error);
         else setItem(itemData);
+        // If any existing claim targets this item, block the user from re-submitting
         if (Array.isArray(claimsData)) {
           setAlreadyClaimed(
             claimsData.some((c: any) => c.claimed_item?.id === itemId),
@@ -87,10 +93,12 @@ export default function ClaimItemPage({
       const incoming = Array.from(e.target.files);
       setProofImages((prev) => [
         ...prev,
+        // Deduplicate by name + size so the same file can't be added twice
         ...incoming.filter(
           (f) => !prev.some((ex) => ex.name === f.name && ex.size === f.size),
         ),
       ]);
+      // Reset the input value so selecting the same file again triggers onChange
       e.target.value = "";
     }
   };
@@ -102,10 +110,6 @@ export default function ClaimItemPage({
 
   const onSubmit = async (values: ClaimFormValues) => {
     if (!itemId) return;
-    // if (proofImages.length === 0) {
-    //   toast.error("Please upload at least one proof of ownership.");
-    //   return;
-    // }
     if (!captchaToken) {
       toast.error("Please complete the CAPTCHA");
       return;
@@ -125,7 +129,7 @@ export default function ClaimItemPage({
       fd.append("itemId", itemId);
       fd.append("extraDescriptions", values.uniqueIdentifiers);
       for (const img of proofImages) {
-        fd.append("proof_images", img);
+        fd.append("proof_images", img); // Each file is appended under the same key
       }
 
       const res = await fetch("/api/claims", { method: "POST", body: fd });
@@ -316,6 +320,8 @@ export default function ClaimItemPage({
                       <div className="grid grid-cols-3 gap-2 mt-2">
                         {proofImages.map((file, i) => (
                           <div key={i} className="relative group aspect-square">
+                            {/* createObjectURL generates a temporary local URL for
+                                the File object so we can preview it without uploading */}
                             <img
                               src={URL.createObjectURL(file)}
                               alt={file.name}

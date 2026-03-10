@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/use-user"; // Custom hook that returns the currently logged-in Supabase user
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ItemCard } from "@/components/item-card";
+import { Skeleton } from "@/components/ui/skeleton"; // Animated placeholder shown while data is loading
+import { ItemCard } from "@/components/item-card"; // Reusable card component for displaying a single item
 import {
   Select,
   SelectContent,
@@ -15,21 +15,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ItemResponse } from "@/lib/types";
-import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories";
+import type { ItemResponse } from "@/lib/types"; // TypeScript type for an item returned by the API
+import { CATEGORY_KEYS, CATEGORY_MAP } from "@/lib/categories"; // Category keys their readable labels
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Footer from "@/components/footer";
 
 export default function BrowsePage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useUser(); // Used to determine if an "Under Admin Review" banner should show
+
+  // All items fetched from the API — unfiltered
   const [items, setItems] = useState<ItemResponse[]>([]);
+
+  // UI state flags
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [statusTab, setStatusTab] = useState("unclaimed");
 
+  // Controlled values for the three filter inputs
+  const [search, setSearch] = useState("");         // Free-text search string
+  const [category, setCategory] = useState("all");  // Selected category key, or "all"
+  const [statusTab, setStatusTab] = useState("unclaimed"); // Active status tab
+
+  // Fetch all items once on mount — filtering is done client-side
   useEffect(() => {
     async function fetchItems() {
       setLoading(true);
@@ -48,11 +55,15 @@ export default function BrowsePage() {
     fetchItems();
   }, []);
 
+  // Get the visible items by applying all three filters simultaneously.
   const filtered = items.filter((item) => {
+    // Text search matches against name, description, and last known location
     const matchesSearch =
       item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.description?.toLowerCase().includes(search.toLowerCase()) ||
       item.last_location?.toLowerCase().includes(search.toLowerCase());
+
+    // Category filter "all" bypasses this check
     const matchesCategory = category === "all" || item.category === category;
     const matchesStatus = item.status === statusTab;
     return matchesSearch && matchesCategory && matchesStatus;
@@ -76,7 +87,7 @@ export default function BrowsePage() {
           </TabsList>
         </Tabs>
 
-        {/* Filters */}
+        {/* Filter bar — search input, category dropdown, and optional clear button */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <Input
             placeholder="Search by name, description, or location…"
@@ -84,6 +95,8 @@ export default function BrowsePage() {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1"
           />
+
+          {/* Category dropdown — populated from the shared CATEGORY_KEYS/CATEGORY_MAP constants */}
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-full sm:w-56">
               <SelectValue placeholder="Category" />
@@ -97,6 +110,7 @@ export default function BrowsePage() {
               ))}
             </SelectContent>
           </Select>
+          {/* Clear button thats only visible when filters applied */}
           {(search || category !== "all") && (
             <Button
               variant="outline"
@@ -110,14 +124,14 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {/* Results count */}
+        {/* Results count shown once data has loaded without errors */}
         {!loading && !error && (
           <p className="text-sm text-muted-foreground mb-4">
             {filtered.length} item{filtered.length !== 1 ? "s" : ""} found
           </p>
         )}
 
-        {/* Error */}
+        {/* Error banner: displayed when the API request fails */}
         {error && (
           <div className="rounded-md bg-red-50 border border-red-200 text-red-700 px-4 py-3 mb-6">
             {error}
@@ -140,7 +154,7 @@ export default function BrowsePage() {
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty state which is shown when filters produce no results */}
         {!loading && !error && filtered.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
             <p className="text-lg font-medium">No items match your search.</p>
@@ -162,13 +176,13 @@ export default function BrowsePage() {
                 foundDate={item.date_lost}
                 returnDate={item.date_returned}
                 postedBy={item.posted_by?.name}
-                imageUrl={item.image_urls?.[0]}
+                imageUrl={item.image_urls?.[0]} // show only the first image
                 underAdminReview={
                   !!user &&
                   item.spam_likeliness != null &&
                   item.spam_likeliness >= 0.6
-                }
-                onClick={() => router.push(`/item/${item.id}`)}
+                } // only show under admin review if the spam_likeliness is >= 0.6.
+                onClick={() => router.push(`/item/${item.id}`)} // Navigate to the item detail page on click
               />
             ))}
           </div>

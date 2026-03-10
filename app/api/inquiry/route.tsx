@@ -108,7 +108,7 @@ export async function POST(request: Request) {
   console.log("notifyimng");
   const emailHtml = await render(
     <NewInquiryEmail
-      name={inquirerName?.name.split(" ")[0] ?? "User"}
+      name={item.posted_by?.name.split(" ")[0] ?? "User"}
       itemName={item.name}
     />,
   );

@@ -37,6 +37,7 @@ export async function GET() {
       inquiries (
         id,
         inquiry_text,
+        inquiry_response,
         created_at,
         inquirer(id, name, email)
       )
@@ -50,11 +51,16 @@ export async function GET() {
   }
 
   // Strip out claims flagged as likely spam (score >= 0.6)
+  // and inquiries that have already been answered.
   const filtered = (items ?? []).map((item) => ({
     ...item,
     claims: (item.claims ?? []).filter(
       (c: { spam_likeliness: number | null }) =>
         c.spam_likeliness === null || c.spam_likeliness < 0.6,
+    ),
+    inquiries: (item.inquiries ?? []).filter(
+      (inq: { inquiry_response: string | null }) =>
+        inq.inquiry_response === null || inq.inquiry_response === "",
     ),
   }));
 

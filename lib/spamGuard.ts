@@ -9,8 +9,9 @@ const SPAM_THRESHOLD = 0.6;
  * Fetches the claim from Supabase and builds the evaluation prompt.
  */
 async function getPrompt(claimId: string): Promise<string> {
+  // Create an admin supabase client using the role key to bypass RLS
   const supabase = createAdminClient();
-
+  // Fetch claim and item data from supabase by the ID
   const { data: claim, error } = await supabase
     .from("claims")
     .select(
@@ -30,11 +31,11 @@ async function getPrompt(claimId: string): Promise<string> {
     )
     .eq("id", claimId)
     .single();
-
+  // Error catching
   if (error || !claim) {
     throw new Error(`Failed to fetch claim ${claimId}: ${error?.message}`);
   }
-
+  // Turn the JSON object into a string to put into the prompt
   const claimJson = JSON.stringify(claim, null, 2);
 
   return (
@@ -53,21 +54,22 @@ async function getPrompt(claimId: string): Promise<string> {
  * Returns a score from 0 (legitimate) to 1 (spam).
  */
 export async function evaluateSpam(claimId: string): Promise<number> {
+  // Get the custom prompt from the function given the claim ID
   const prompt = await getPrompt(claimId);
-
+  // Create a GenAI instance securely using the API key in the .env file
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-
+// Generate the spam score
   const response = await ai.models.generateContent({
     model: MODEL,
     contents: prompt,
     config: {
       thinkingConfig: {
-        thinkingBudget: -1, // dynamic thinking
+        thinkingBudget: -1, // dynamic thinking for better responses
         includeThoughts: true,
       },
     },
   });
-
+  // extract all response items
   const parts = response.candidates?.[0]?.content?.parts ?? [];
 
   // Log thinking to console
@@ -76,6 +78,7 @@ export async function evaluateSpam(claimId: string): Promise<number> {
     .map((p: { text?: string }) => p.text ?? "")
     .join("");
   if (thoughts) {
+    // Log thoughts for spamGuard
     console.log(
       `[spamGuard] Gemini thoughts for claim ${claimId}:\n${thoughts}`,
     );
@@ -100,8 +103,9 @@ export async function evaluateSpam(claimId: string): Promise<number> {
  * Fetches the item from Supabase and builds the evaluation prompt.
  */
 async function getItemPrompt(itemId: string): Promise<string> {
+  // Create a supabase instance using the service role key to bypass RLS
   const supabase = createAdminClient();
-
+  // Get the item information from the supabase database.
   const { data: item, error } = await supabase
     .from("items")
     .select(
@@ -121,7 +125,7 @@ async function getItemPrompt(itemId: string): Promise<string> {
   if (error || !item) {
     throw new Error(`Failed to fetch item ${itemId}: ${error?.message}`);
   }
-
+  // Turn it into a string to put in the prompt
   const itemJson = JSON.stringify(item, null, 2);
 
   return (
@@ -151,12 +155,12 @@ export async function evaluateItem(itemId: string): Promise<number> {
     contents: prompt,
     config: {
       thinkingConfig: {
-        thinkingBudget: -1,
+        thinkingBudget: -1, // Dynamic thinking for better results
         includeThoughts: true,
       },
     },
   });
-
+  // extract all response items
   const parts = response.candidates?.[0]?.content?.parts ?? [];
 
   const thoughts = parts
@@ -164,6 +168,7 @@ export async function evaluateItem(itemId: string): Promise<number> {
     .map((p: { text?: string }) => p.text ?? "")
     .join("");
   if (thoughts) {
+    // Log thoughts for spamGuard
     console.log(`[spamGuard] Gemini thoughts for item ${itemId}:\n${thoughts}`);
   }
 

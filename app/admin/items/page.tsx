@@ -21,6 +21,7 @@ import { spamColor } from "@/lib/utils";
 import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
 import { getCategoryLabel } from "@/lib/categories";
 
+// shape of a single item row
 interface Item {
   id: string;
   name: string;
@@ -64,6 +65,7 @@ export default function ItemsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [markFoundLoading, setMarkFoundLoading] = useState(false);
 
+  // load all items from API
   const fetchItems = async () => {
     try {
       setLoading(true);
@@ -84,10 +86,12 @@ export default function ItemsPage() {
     }
   };
 
+  // fetch once on initial mount
   useEffect(() => {
     fetchItems();
   }, []);
 
+  // POST new item then refresh table
   const handleAddItem = async (newItem: Record<string, unknown>) => {
     try {
       const response = await fetch("/api/admin/items", {
@@ -108,6 +112,7 @@ export default function ItemsPage() {
     }
   };
 
+  // bulk DELETE accepts array of ids
   const handleDeleteItems = async (ids: string[]) => {
     try {
       const response = await fetch("/api/admin/items", {
@@ -128,6 +133,7 @@ export default function ItemsPage() {
     }
   };
 
+  // wraps bulk delete for single dialog item
   const handleDeleteSingle = async () => {
     if (!viewItem) return;
     setDeleteLoading(true);
@@ -142,6 +148,7 @@ export default function ItemsPage() {
     }
   };
 
+  // PATCH action changes status to found
   const handleMarkFound = async () => {
     if (!viewItem) return;
     setMarkFoundLoading(true);
@@ -155,6 +162,7 @@ export default function ItemsPage() {
         const data = await response.json();
         throw new Error(data.error || "Failed to mark item as found");
       }
+      // optimistically update dialog before refetch
       setViewItem((prev) => (prev ? { ...prev, status: "found" } : prev));
       await fetchItems();
     } catch (err) {
@@ -166,6 +174,7 @@ export default function ItemsPage() {
     }
   };
 
+  // maps status to tailwind color classes
   const statusClass = (status: string) =>
     status === "unclaimed"
       ? "bg-gray-100 text-gray-800"
@@ -175,6 +184,7 @@ export default function ItemsPage() {
           ? "bg-blue-100 text-blue-800"
           : "";
 
+  // column definitions for the data table
   const columns: ColumnDef<Item>[] = [
     { key: "id", label: "ID" },
     { key: "name", label: "Item Name" },
@@ -218,6 +228,7 @@ export default function ItemsPage() {
     {
       key: "spam_likeliness",
       label: "Spam Score",
+      // null score shown as dash
       render: (value) => {
         const score = value as number | null;
         if (score === null)
@@ -286,10 +297,11 @@ export default function ItemsPage() {
         onAdd={handleAddItem}
         // @ts-ignore
         onDelete={handleDeleteItems}
-        disableAdd
+        disableAdd // items created by users only
       />
 
       {/* Item Detail Dialog */}
+      {/* full info including images and actions */}
       <Dialog
         open={!!viewItem}
         onOpenChange={(open) => {
@@ -386,6 +398,7 @@ export default function ItemsPage() {
 
               {viewItem.image_urls?.length > 0 && (
                 <div>
+                  {/* linked thumbnails open in new tab */}
                   <p className="font-medium text-muted-foreground text-sm mb-2">
                     Images ({viewItem.image_urls.length})
                   </p>
@@ -441,6 +454,7 @@ export default function ItemsPage() {
                 {markFoundLoading ? "Saving…" : "Mark as Found"}
               </Button>
             )}
+            {/* two-step confirm prevents accidental deletes */}
             {!deleteConfirm ? (
               <Button
                 variant="destructive"
