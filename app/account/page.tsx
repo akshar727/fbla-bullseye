@@ -38,7 +38,7 @@ type AccountData = {
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, u_loading } = useUser();
+  const { user, u_loading, refetch } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -90,7 +90,7 @@ export default function AccountPage() {
         toast.error(data?.error ?? "Failed to save changes.");
       } else {
         toast.success("Account updated successfully.");
-        router.refresh();
+        window.location.reload();
       }
     } catch {
       toast.error("Failed to save changes.");

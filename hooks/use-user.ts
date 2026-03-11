@@ -55,5 +55,12 @@ export function useUser() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return { u_loading, error, session, user, isAdmin, displayName };
+  const refetch = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    await syncSession(session);
+  };
+
+  return { u_loading, error, session, user, isAdmin, displayName, refetch };
 }
