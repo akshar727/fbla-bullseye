@@ -44,9 +44,11 @@ import { Label } from "@/components/ui/label";
 
 export interface ColumnDef<T> {
   key: keyof T & string;
+  id?: string;
   label: string;
   sortable?: boolean;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
+  sortValue?: (value: T[keyof T], row: T) => string | number;
 }
 
 export interface FieldDef {
@@ -84,7 +86,7 @@ export function DataTable<T extends { id: string | number }>({
 }: DataTableProps<T>) {
   const [data, setData] = React.useState(initialData);
   const [search, setSearch] = React.useState("");
-  const [sortKey, setSortKey] = React.useState<(keyof T & string) | null>(null);
+  const [sortKey, setSortKey] = React.useState<string | null>(null);
   const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(defaultPageSize);
@@ -115,9 +117,11 @@ export function DataTable<T extends { id: string | number }>({
   // Sort
   const sorted = React.useMemo(() => {
     if (!sortKey) return filtered;
+    const col = columns.find((c) => (c.id ?? c.key) === sortKey);
+    const dataKey = col?.key ?? (sortKey as keyof T & string);
     return [...filtered].sort((a, b) => {
-      const aVal = a[sortKey];
-      const bVal = b[sortKey];
+      const aVal = col?.sortValue ? col.sortValue(a[dataKey], a) : a[dataKey];
+      const bVal = col?.sortValue ? col.sortValue(b[dataKey], b) : b[dataKey];
       if (aVal == null) return 1;
       if (bVal == null) return -1;
       const cmp = String(aVal).localeCompare(String(bVal), undefined, {
@@ -125,7 +129,7 @@ export function DataTable<T extends { id: string | number }>({
       });
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [filtered, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir, columns]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
@@ -136,7 +140,7 @@ export function DataTable<T extends { id: string | number }>({
     setPage(0);
   }, [search, sortKey, sortDir, pageSize]);
 
-  function handleSort(key: keyof T & string) {
+  function handleSort(key: string) {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -180,8 +184,9 @@ export function DataTable<T extends { id: string | number }>({
     setDeleteOpen(false);
   }
 
-  const SortIcon = ({ colKey }: { colKey: keyof T & string }) => {
-    if (sortKey !== colKey)
+  const SortIcon = ({ col }: { col: ColumnDef<T> }) => {
+    const colId = col.id ?? col.key;
+    if (sortKey !== colId)
       return <ArrowUpDown className="size-3.5 ml-1 text-muted-foreground/50" />;
     return sortDir === "asc" ? (
       <ArrowUp className="size-3.5 ml-1" />
@@ -337,11 +342,11 @@ export function DataTable<T extends { id: string | number }>({
                 <TableHead key={col.key}>
                   {col.sortable !== false ? (
                     <button
-                      onClick={() => handleSort(col.key)}
+                      onClick={() => handleSort(col.id ?? col.key)}
                       className="flex items-center font-medium hover:text-foreground transition-colors"
                     >
                       {col.label}
-                      <SortIcon colKey={col.key} />
+                      <SortIcon col={col} />
                     </button>
                   ) : (
                     col.label

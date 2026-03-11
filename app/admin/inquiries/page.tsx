@@ -21,6 +21,10 @@ const columns: ColumnDef<Inquiry>[] = [
   {
     key: "inquirer",
     label: "From",
+    sortValue: (value) => {
+      const u = value as Inquiry["inquirer"];
+      return u?.name ?? "";
+    },
     render: (value) => {
       const u = value as Inquiry["inquirer"];
       return u ? `${u.name} (${u.email})` : "Unknown";
@@ -29,6 +33,10 @@ const columns: ColumnDef<Inquiry>[] = [
   {
     key: "inquired_item",
     label: "Item",
+    sortValue: (value) => {
+      const item = value as Inquiry["inquired_item"];
+      return item?.name ?? "";
+    },
     render: (value) => {
       const item = value as Inquiry["inquired_item"];
       return item?.name || "—";

@@ -245,6 +245,10 @@ export default function ItemsPage() {
     {
       key: "posted_by",
       label: "Posted By",
+      sortValue: (value) => {
+        const postedBy = value as Item["posted_by"];
+        return postedBy?.name ?? "";
+      },
       render: (value) => {
         const postedBy = value as Item["posted_by"];
         return postedBy?.name || "Unknown";

@@ -145,6 +145,10 @@ function SpamClaimsTab() {
     {
       key: "claimed_item",
       label: "Item",
+      sortValue: (value) => {
+        const item = value as SpamClaim["claimed_item"];
+        return item?.name ?? "";
+      },
       render: (value) => {
         const item = value as SpamClaim["claimed_item"];
         return item?.name || "Unknown";
@@ -153,6 +157,10 @@ function SpamClaimsTab() {
     {
       key: "claimant",
       label: "Claimant",
+      sortValue: (value) => {
+        const claimant = value as SpamClaim["claimant"];
+        return claimant?.name ?? "";
+      },
       render: (value) => {
         const claimant = value as SpamClaim["claimant"];
         return claimant?.name || "Unknown";
@@ -480,6 +488,10 @@ function SpamItemsTab() {
     {
       key: "posted_by",
       label: "Posted By",
+      sortValue: (value) => {
+        const user = value as SpamItem["posted_by"];
+        return user?.name ?? "";
+      },
       render: (value) => {
         const user = value as SpamItem["posted_by"];
         return user?.name || "Unknown";

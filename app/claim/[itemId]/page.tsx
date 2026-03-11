@@ -36,10 +36,10 @@ export default function ClaimItemPage({
   const router = useRouter();
   const { user, u_loading } = useUser();
 
-  const [item, setItem] = useState<any>(null);     // The found item being claimed
-  const [loading, setLoading] = useState(true);     // True while item + claims data is fetching
+  const [item, setItem] = useState<any>(null); // The found item being claimed
+  const [loading, setLoading] = useState(true); // True while item + claims data is fetching
   const [itemId, setItemId] = useState<string | null>(null); // Resolved from the async route params
-  const [isSubmitting, setIsSubmitting] = useState(false);   // Disables the submit button while the API call is in flight
+  const [isSubmitting, setIsSubmitting] = useState(false); // Disables the submit button while the API call is in flight
   const [activeImage, setActiveImage] = useState(0); // Index of the currently displayed image in the gallery
 
   // Files the user has selected as proof of ownership
@@ -195,14 +195,14 @@ export default function ClaimItemPage({
 
   return (
     <>
-      <div className="px-4 py-12">
-        <h1 className="text-3xl font-black">Claim This Item</h1>
-        <h2 className="text-lg font-medium text-gray-600">
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+        <h1 className="text-2xl sm:text-3xl font-black">Claim This Item</h1>
+        <h2 className="text-base sm:text-lg font-medium text-gray-600 mt-1">
           Please provide details to verify ownership. Our team reviews all
           claims within 24 hours to ensure items are returned to their rightful
           owners.
         </h2>
-        <div className="flex gap-4 mt-4 items-stretch">
+        <div className="flex flex-col md:flex-row gap-4 mt-4 items-stretch">
           {/* Item summary */}
           <div className="flex flex-1 flex-col gap-4">
             <Card className="flex-1 p-6">
@@ -215,7 +215,7 @@ export default function ClaimItemPage({
                     <img
                       src={item.image_urls[activeImage]}
                       alt={item.name}
-                      className="w-full aspect-square object-cover rounded-md border"
+                      className="w-full aspect-square max-h-64 sm:max-h-80 md:max-h-none object-cover rounded-md border"
                     />
                     {item.image_urls.length > 1 && (
                       <div className="flex gap-2 flex-wrap">
@@ -241,7 +241,7 @@ export default function ClaimItemPage({
                     )}
                   </div>
                 ) : (
-                  <div className="w-full aspect-square rounded-md border bg-muted flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="w-full aspect-square max-h-64 sm:max-h-80 md:max-h-none rounded-md border bg-muted flex items-center justify-center text-muted-foreground text-sm">
                     No images
                   </div>
                 )}
@@ -263,7 +263,7 @@ export default function ClaimItemPage({
           </div>
 
           {/* Claim form */}
-          <div className="flex-2 flex flex-col">
+          <div className="md:flex-2 flex flex-col">
             <Card className="p-6 flex-1 flex flex-col">
               <CardTitle className="text-lg font-bold mb-4">
                 Claimant Details
@@ -344,7 +344,7 @@ export default function ClaimItemPage({
                     )}
                   </div>
 
-                  <div className="flex justify-center scale-90 origin-top -my-3">
+                  <div className="flex justify-center overflow-hidden scale-90 origin-top -my-3">
                     <Recaptcha onVerify={setCaptchaToken} />
                   </div>
 

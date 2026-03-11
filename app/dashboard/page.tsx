@@ -183,14 +183,14 @@ export default function DashboardPage() {
           {items.map((item) => (
             <Card key={item.id}>
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                   <div>
                     <CardTitle className="text-lg">{item.name}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {getCategoryLabel(item.category)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 sm:shrink-0">
                     {item.spam_likeliness != null &&
                       item.spam_likeliness >= 0.6 && (
                         <span className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-800">

@@ -122,6 +122,10 @@ export default function ClaimsPage() {
     {
       key: "claimed_item",
       label: "Item",
+      sortValue: (value) => {
+        const item = value as Claim["claimed_item"];
+        return item?.name ?? "";
+      },
       render: (value) => {
         const item = value as Claim["claimed_item"];
         return item?.name || "Unknown";
@@ -130,6 +134,10 @@ export default function ClaimsPage() {
     {
       key: "claimant",
       label: "Claimant",
+      sortValue: (value) => {
+        const claimant = value as Claim["claimant"];
+        return claimant?.name ?? "";
+      },
       render: (value) => {
         const claimant = value as Claim["claimant"];
         return claimant?.name || "Unknown";
@@ -145,7 +153,12 @@ export default function ClaimsPage() {
     },
     {
       key: "claimed_item",
+      id: "item_status",
       label: "Item Status",
+      sortValue: (value) => {
+        const item = value as Claim["claimed_item"];
+        return item?.status ?? "";
+      },
       render: (value) => {
         const item = value as Claim["claimed_item"];
         const status = item?.status || "unknown";

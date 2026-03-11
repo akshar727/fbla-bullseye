@@ -78,7 +78,7 @@ export default function OngoingClaimsPage() {
           {claims.map((claim) => (
             <Card key={claim.id}>
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                   <div>
                     <CardTitle className="text-lg">
                       {claim.claimed_item?.name ?? "Unknown Item"}
@@ -87,7 +87,7 @@ export default function OngoingClaimsPage() {
                       {getCategoryLabel(claim.claimed_item?.category ?? "")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 sm:shrink-0">
                     {(claim.spam_likeliness ?? 0) >= 0.6 ? (
                       <Badge
                         variant="outline"
