@@ -106,6 +106,13 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
+    // Delete all other claims on this item now that it has been claimed
+    await supabase
+      .from("claims")
+      .delete()
+      .eq("claimed_item", claim.claimed_item.id)
+      .neq("id", id);
+
     // Fetch the item poster to create the chat room between poster and claimant
     const { data: itemData } = await supabase
       .from("items")
@@ -128,7 +135,25 @@ export async function PATCH(request: Request) {
       ).catch(console.error),
     );
   } else {
-    // deny — delete the claim so it disappears from the user's ongoing claims
+    // deny — check if this claim was the one that got the item marked as claimed;
+    // if so, revert the item back to unclaimed and clear claimed_by
+    const { data: itemData } = await supabase
+      .from("items")
+      .select("status, claimed_by")
+      .eq("id", claim.claimed_item.id)
+      .single();
+
+    if (
+      itemData?.status === "claimed" &&
+      itemData?.claimed_by === claim.claimant.id
+    ) {
+      await supabase
+        .from("items")
+        .update({ status: "unclaimed", claimed_by: null, date_returned: null })
+        .eq("id", claim.claimed_item.id);
+    }
+
+    // delete the claim so it disappears from the user's ongoing claims
     const { error: deleteError } = await supabase
       .from("claims")
       .delete()

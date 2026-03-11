@@ -18,8 +18,13 @@ import {
 } from "@/components/admin/data-table";
 import { Eye, Trash2, CheckCircle } from "lucide-react";
 import { spamColor } from "@/lib/utils";
-import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
+import {
+  STATUS_ICONS,
+  CATEGORY_ICONS,
+  STATUS_COLORS,
+} from "@/lib/status-category-icons";
 import { getCategoryLabel } from "@/lib/categories";
+import { CATEGORY_BADGE_COLORS } from "@/lib/status-category-icons";
 
 // shape of a single item row
 interface Item {
@@ -176,13 +181,7 @@ export default function ItemsPage() {
 
   // maps status to tailwind color classes
   const statusClass = (status: string) =>
-    status === "unclaimed"
-      ? "bg-gray-100 text-gray-800"
-      : status === "found"
-        ? "bg-green-100 text-green-800"
-        : status === "claimed"
-          ? "bg-blue-100 text-blue-800"
-          : "";
+    STATUS_COLORS[status] ?? "bg-slate-100 text-slate-700";
 
   // column definitions for the data table
   const columns: ColumnDef<Item>[] = [
@@ -197,7 +196,7 @@ export default function ItemsPage() {
         return (
           <Badge
             variant="outline"
-            className="capitalize inline-flex items-center gap-1"
+            className={`${CATEGORY_BADGE_COLORS[cat] ?? "bg-slate-100 text-slate-700"} capitalize inline-flex items-center gap-1`}
           >
             {CatIcon && <CatIcon className="size-3" />}
             {getCategoryLabel(cat)}
@@ -332,7 +331,7 @@ export default function ItemsPage() {
                   </p>
                   <Badge
                     variant="outline"
-                    className="capitalize mt-0.5 inline-flex items-center gap-1"
+                    className={`${CATEGORY_BADGE_COLORS[viewItem.category] ?? "bg-slate-100 text-slate-700"} capitalize mt-0.5 inline-flex items-center gap-1`}
                   >
                     {CATEGORY_ICONS[viewItem.category] &&
                       (() => {

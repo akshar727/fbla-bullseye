@@ -19,7 +19,11 @@ import {
 } from "@/components/admin/data-table";
 import { Eye, RotateCcw, Trash2 } from "lucide-react";
 import { spamColor } from "@/lib/utils";
-import { STATUS_ICONS, CATEGORY_ICONS } from "@/lib/status-category-icons";
+import {
+  STATUS_ICONS,
+  CATEGORY_ICONS,
+  CATEGORY_BADGE_COLORS,
+} from "@/lib/status-category-icons";
 import { getCategoryLabel } from "@/lib/categories";
 
 interface SpamClaim {
@@ -447,8 +451,7 @@ function SpamItemsTab() {
         const CatIcon = CATEGORY_ICONS[cat];
         return (
           <Badge
-            variant="outline"
-            className="capitalize inline-flex items-center gap-1"
+            className={`${CATEGORY_BADGE_COLORS[cat] ?? "bg-slate-100 text-slate-700"} capitalize inline-flex items-center gap-1`}
           >
             {CatIcon && <CatIcon className="size-3" />}
             {getCategoryLabel(cat)}
@@ -552,8 +555,7 @@ function SpamItemsTab() {
                 <div>
                   <p className="font-medium text-muted-foreground">Category</p>
                   <Badge
-                    variant="outline"
-                    className="capitalize mt-0.5 inline-flex items-center gap-1"
+                    className={`${CATEGORY_BADGE_COLORS[viewItem.category] ?? "bg-slate-100 text-slate-700"} capitalize mt-0.5 inline-flex items-center gap-1`}
                   >
                     {CATEGORY_ICONS[viewItem.category] &&
                       (() => {

@@ -18,7 +18,7 @@ import {
 } from "@/components/admin/data-table";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
 import { spamColor } from "@/lib/utils";
-import { STATUS_ICONS } from "@/lib/status-category-icons";
+import { STATUS_ICONS, STATUS_COLORS } from "@/lib/status-category-icons";
 
 interface Claim {
   id: string;
@@ -150,13 +150,7 @@ export default function ClaimsPage() {
         const item = value as Claim["claimed_item"];
         const status = item?.status || "unknown";
         const className =
-          status === "unclaimed"
-            ? "bg-gray-100 text-gray-800"
-            : status === "found"
-              ? "bg-blue-100 text-blue-800"
-              : status === "claimed"
-                ? "bg-yellow-100 text-yellow-800"
-                : "";
+          STATUS_COLORS[status] ?? "bg-slate-100 text-slate-700";
         const StatusIcon = STATUS_ICONS[status];
         return (
           <Badge
