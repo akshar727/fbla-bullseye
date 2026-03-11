@@ -90,6 +90,7 @@ export default function AccountPage() {
         toast.error(data?.error ?? "Failed to save changes.");
       } else {
         toast.success("Account updated successfully.");
+        router.refresh();
       }
     } catch {
       toast.error("Failed to save changes.");

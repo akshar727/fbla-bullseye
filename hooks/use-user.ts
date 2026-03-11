@@ -8,6 +8,7 @@ export function useUser() {
   const [session, setSession] = useState<Session | null>(null);
   const [u_loading, setLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const supabase = createClient();
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,11 +19,12 @@ export function useUser() {
       setUser(session.user);
       const { data, error: userError } = await supabase
         .from("users")
-        .select("role")
+        .select("role, name")
         .eq("id", session.user.id)
         .single();
       if (!userError && data) {
         setIsAdmin(data.role === "admin");
+        setDisplayName(data.name);
       }
     } else {
       setSession(null);
@@ -53,5 +55,5 @@ export function useUser() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return { u_loading, error, session, user, isAdmin };
+  return { u_loading, error, session, user, isAdmin, displayName };
 }

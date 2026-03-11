@@ -70,7 +70,7 @@ export function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileNotifOpen, setMobileNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const { user, u_loading, isAdmin } = useUser();
+  const { user, u_loading, isAdmin, displayName } = useUser();
 
   useEffect(() => {
     if (!user) return;
@@ -216,10 +216,10 @@ export function Navbar() {
                     <Avatar className="h-9 w-9">
                       <AvatarImage
                         src={user.user_metadata.avatar_url}
-                        alt={user.user_metadata.full_name || user.email}
+                        alt={displayName || user.email}
                       />
                       <AvatarFallback>
-                        {user?.user_metadata?.full_name
+                        {displayName
                           ?.split(" ")
                           .map((n: string) => n[0])
                           .join("")
@@ -235,7 +235,7 @@ export function Navbar() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.user_metadata.full_name || "My Account"}
+                        {displayName || "My Account"}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
@@ -389,10 +389,10 @@ export function Navbar() {
                     <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={user.user_metadata.avatar_url}
-                        alt={user.user_metadata.full_name || user.email}
+                        alt={displayName || user.email}
                       />
                       <AvatarFallback>
-                        {user?.user_metadata?.full_name
+                        {displayName
                           ?.split(" ")
                           .map((n: string) => n[0])
                           .join("")
@@ -404,7 +404,7 @@ export function Navbar() {
                     </Avatar>
                     <div className="flex flex-col min-w-0">
                       <span className="text-sm font-medium truncate">
-                        {user.user_metadata.full_name || "My Account"}
+                        {displayName || "My Account"}
                       </span>
                       <span className="text-xs text-muted-foreground truncate">
                         {user.email}
