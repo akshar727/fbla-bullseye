@@ -256,7 +256,7 @@ export default function ChatPage() {
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
           {room.proposed_time && (
             <div
               className={`flex items-center gap-1.5 text-xs border rounded-md px-2 py-1 ${
@@ -265,7 +265,7 @@ export default function ChatPage() {
                   : "text-muted-foreground"
               }`}
             >
-              <Clock className="size-3" />
+              <Clock className="size-3 shrink-0" />
               {room.time_accepted
                 ? "✓ Meetup confirmed:"
                 : "Meetup proposed:"}{" "}
@@ -275,6 +275,7 @@ export default function ChatPage() {
           <Button
             size="sm"
             variant="outline"
+            className="shrink-0"
             onClick={() => setProposeOpen(true)}
           >
             <CalendarIcon className="size-3.5 mr-1.5" />
