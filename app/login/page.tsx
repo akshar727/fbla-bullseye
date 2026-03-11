@@ -55,7 +55,7 @@ function LoginContent() {
         return;
       }
       toast.success("Signed in successfully.");
-      router.push(nextPath);
+      window.location.href = nextPath;
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {

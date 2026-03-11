@@ -173,6 +173,7 @@ function SignupContent() {
         return;
       }
 
+      await supabase.auth.signOut();
       toast.success("Account created. Please login.");
       router.push(`/login?next=${encodeURIComponent(nextPath)}`);
     } catch {
@@ -242,6 +243,7 @@ function SignupContent() {
       }
 
       toast.success("Admin account created. Please login.");
+      await supabase.auth.signOut();
       router.push(`/login?next=${encodeURIComponent(nextPath)}`);
     } catch {
       toast.error("Something went wrong. Please try again.");

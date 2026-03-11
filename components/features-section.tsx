@@ -28,7 +28,7 @@ const features = [
     icon: Mail,
     title: "Instant Email Notifications",
     description:
-      "Get notified the moment something happens. When your claim is approved or denied, when someone inquires about your listing, or when an inquiry you sent gets a response. Never miss a beat.",
+      "Get notified the moment something happens. When your claim is approved, when someone inquires about your listing, or when an inquiry you sent gets a response. Never miss a beat.",
   },
 ];
 

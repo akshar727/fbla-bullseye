@@ -108,7 +108,7 @@ export default function AccountPage() {
         toast.error(data?.error ?? "Failed to delete account.");
       } else {
         toast.success("Your account has been deleted.");
-        router.replace("/");
+        window.location.href = "/";
       }
     } catch {
       toast.error("Failed to delete account.");
