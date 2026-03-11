@@ -45,7 +45,15 @@ function PasswordStrength({ password }: { password: string }) {
   const level = STRENGTH_LEVELS[levelIndex];
 
   return (
-    <div className="space-y-2 pt-1">
+    <div
+      className="space-y-2 pt-1"
+      role="meter"
+      aria-label="Password strength"
+      aria-valuenow={levelIndex + 1}
+      aria-valuemin={0}
+      aria-valuemax={4}
+      aria-valuetext={level.label}
+    >
       {/* Bar */}
       <div className="flex items-center gap-2">
         <div className="flex flex-1 gap-1">
@@ -313,7 +321,11 @@ function SignupContent() {
 
             {/* Student Sign Up */}
             <TabsContent value="student" className="space-y-4">
-              <form onSubmit={handleStudentSignup} className="space-y-3">
+              <form
+                onSubmit={handleStudentSignup}
+                aria-label="Student sign up"
+                className="space-y-3"
+              >
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="student-first-name">First Name</Label>
@@ -382,7 +394,11 @@ function SignupContent() {
 
             {/* Staff Sign Up */}
             <TabsContent value="staff" className="space-y-4">
-              <form onSubmit={handleStaffSignup} className="space-y-3">
+              <form
+                onSubmit={handleStaffSignup}
+                aria-label="Staff sign up"
+                className="space-y-3"
+              >
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="staff-first-name">First Name</Label>

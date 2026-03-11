@@ -76,7 +76,11 @@ function LoginContent() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <form onSubmit={handleLogin} className="space-y-3">
+          <form
+            onSubmit={handleLogin}
+            aria-label="Sign in"
+            className="space-y-3"
+          >
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input

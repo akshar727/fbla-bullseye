@@ -31,8 +31,9 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32 px-6 bg-gray-50">
+    <section aria-label="How it works" className="relative overflow-hidden py-24 md:py-32 px-6 bg-gray-50">
       <FlickeringGrid
+        aria-hidden="true"
         className="absolute inset-0 z-0 size-full [mask-image:radial-gradient(450px_circle_at_center,white,transparent)]"
         squareSize={4}
         gridGap={6}
@@ -70,7 +71,7 @@ export function HowItWorksSection() {
               <CardHeader>
                 <div className="flex items-center gap-4 mb-2">
                   <span className="flex items-center justify-center size-12 rounded-xl bg-primary text-white shrink-0">
-                    <step.icon className="size-6" />
+                    <step.icon aria-hidden="true" className="size-6" />
                   </span>
                   <span className="text-muted-foreground text-sm font-mono font-bold">
                     {String(i + 1).padStart(2, "0")}
@@ -98,7 +99,7 @@ export function HowItWorksSection() {
           <Button size="lg" className="font-semibold" asChild>
             <Link href="/signup">
               Get started now
-              <ArrowRight className="size-5" />
+              <ArrowRight aria-hidden="true" className="size-5" />
             </Link>
           </Button>
         </motion.div>

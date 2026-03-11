@@ -101,14 +101,21 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav
+      aria-label="Main navigation"
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
       <div className="mx-auto px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo / Brand - LEFT SECTION */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="rounded-md w-8 h-8">
-                <img src="/favicon.ico" alt="Logo" className="h-8 w-8 z-10" />
+                <img
+                  src="/favicon.ico"
+                  alt="Bullseye logo"
+                  className="h-8 w-8 z-10"
+                />
               </div>
               <span className="text-xl font-bold">Bullseye</span>
             </Link>
@@ -212,6 +219,7 @@ export function Navbar() {
                   <Button
                     variant="ghost"
                     className="hidden md:flex relative h-10 w-10 rounded-full"
+                    aria-label="User menu"
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage
@@ -288,7 +296,11 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t py-4 space-y-3">
+          <div
+            className="md:hidden border-t py-4 space-y-3"
+            role="menu"
+            aria-label="Mobile navigation menu"
+          >
             {/* Mobile Navigation Links */}
             <Link
               href="/browse"

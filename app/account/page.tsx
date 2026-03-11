@@ -139,7 +139,7 @@ export default function AccountPage() {
         <div className="mx-auto max-w-2xl space-y-6">
           {/* Header */}
           <div className="flex items-center gap-3 pb-2">
-            <UserCog className="size-6 text-muted-foreground" />
+              <UserCog aria-hidden="true" className="size-6 text-muted-foreground" />
             <div>
               <h1 className="text-xl font-semibold">Account Settings</h1>
               <p className="text-sm text-muted-foreground">
@@ -191,7 +191,7 @@ export default function AccountPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Bell className="size-4" />
+                <Bell aria-hidden="true" className="size-4" />
                 Email Notifications
               </CardTitle>
               <CardDescription>
@@ -209,6 +209,7 @@ export default function AccountPage() {
                   </p>
                 </div>
                 <Switch
+                  aria-label="Toggle email notifications"
                   checked={sendEmailNotifs}
                   onCheckedChange={setSendEmailNotifs}
                 />
@@ -228,7 +229,7 @@ export default function AccountPage() {
           {/* Danger Zone */}
           <div className="space-y-3 pb-4">
             <div className="flex items-center gap-2 text-destructive">
-              <ShieldAlert className="size-4" />
+              <ShieldAlert aria-hidden="true" className="size-4" />
               <p className="text-sm font-semibold">Delete Account</p>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -240,7 +241,7 @@ export default function AccountPage() {
               onClick={() => setDeleteDialogOpen(true)}
               className="gap-2"
             >
-              <Trash2 className="size-4" />
+              <Trash2 aria-hidden="true" className="size-4" />
               Delete My Account
             </Button>
           </div>

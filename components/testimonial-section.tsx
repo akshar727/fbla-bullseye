@@ -125,7 +125,7 @@ const ROW_TWO = [
 
 export function TestimonialSection() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32 bg-muted/30">
+    <section aria-label="Testimonials" className="relative overflow-hidden py-24 md:py-32 bg-muted/30">
       <div className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
@@ -172,6 +172,7 @@ export function TestimonialSection() {
         </ScrollVelocityContainer>
       </div>
       <FlickeringGrid
+        aria-hidden="true"
         className="absolute inset-0 z-0 size-full [mask-image:radial-gradient(450px_circle_at_center,white,transparent)]"
         squareSize={4}
         gridGap={6}

@@ -1105,7 +1105,7 @@ export default function SourcesPage() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-card text-sm font-medium hover:bg-muted transition-colors"
           >
-            <Github className="size-4" />
+            <Github aria-hidden="true" className="size-4" />
             akshar727/fbla-bullseye
           </a>
         </div>

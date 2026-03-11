@@ -38,7 +38,7 @@ const FAQS = [
 
 export function FaqSection() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-white">
+    <section aria-label="Frequently asked questions" className="py-24 md:py-32 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div

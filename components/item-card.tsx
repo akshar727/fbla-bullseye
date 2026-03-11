@@ -42,6 +42,15 @@ export function ItemCard({
     <Card
       className={`overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${className}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${name}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
       <div>
         {/* Image or placeholder */}

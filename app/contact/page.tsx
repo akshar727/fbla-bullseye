@@ -48,7 +48,10 @@ export default function ContactPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Mail className="size-4 text-muted-foreground" />
+                  <Mail
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground"
+                  />
                   Email Us
                 </CardTitle>
               </CardHeader>
@@ -68,7 +71,10 @@ export default function ContactPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Phone className="size-4 text-muted-foreground" />
+                  <Phone
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground"
+                  />
                   Call Bullseye Support
                 </CardTitle>
               </CardHeader>
@@ -89,7 +95,10 @@ export default function ContactPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Globe className="size-4 text-muted-foreground" />
+                  <Globe
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground"
+                  />
                   School Website
                 </CardTitle>
               </CardHeader>
@@ -113,7 +122,10 @@ export default function ContactPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <Users className="size-4 text-muted-foreground" />
+                <Users
+                  aria-hidden="true"
+                  className="size-4 text-muted-foreground"
+                />
                 Web Team
               </CardTitle>
             </CardHeader>
@@ -132,25 +144,28 @@ export default function ContactPage() {
           {/* Quick help links */}
           <div>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <HelpCircle className="size-5 text-muted-foreground" />
+              <HelpCircle
+                aria-hidden="true"
+                className="size-5 text-muted-foreground"
+              />
               Quick Links
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button variant="outline" className="justify-start gap-2" asChild>
                 <Link href="/browse">
-                  <Globe className="size-4" />
+                  <Globe aria-hidden="true" className="size-4" />
                   Browse Found Items
                 </Link>
               </Button>
               <Button variant="outline" className="justify-start gap-2" asChild>
                 <Link href="/tos">
-                  <FileText className="size-4" />
+                  <FileText aria-hidden="true" className="size-4" />
                   Terms of Service
                 </Link>
               </Button>
               <Button variant="outline" className="justify-start gap-2" asChild>
                 <Link href="/privacy">
-                  <ShieldCheck className="size-4" />
+                  <ShieldCheck aria-hidden="true" className="size-4" />
                   Privacy Policy
                 </Link>
               </Button>

@@ -10,8 +10,9 @@ import { useUser } from "@/hooks/use-user";
 export function CtaSection() {
   const { user } = useUser();
   return (
-    <section className="relative overflow-hidden py-24 md:py-32 px-6">
+    <section aria-label="Call to action" className="relative overflow-hidden py-24 md:py-32 px-6">
       <FlickeringGrid
+        aria-hidden="true"
         className="absolute inset-0 z-0 size-full [mask-image:radial-gradient(450px_circle_at_center,white,transparent)]"
         squareSize={4}
         gridGap={6}
@@ -59,7 +60,7 @@ export function CtaSection() {
           <Button size="lg" asChild variant="outline" className="font-semibold">
             <Link href="/browse">
               Browse Found Items
-              <ArrowRight className="size-5 ml-1" />
+              <ArrowRight aria-hidden="true" className="size-5 ml-1" />
             </Link>
           </Button>
         </motion.div>

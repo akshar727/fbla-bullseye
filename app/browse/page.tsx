@@ -90,6 +90,7 @@ export default function BrowsePage() {
         {/* Filter bar — search input, category dropdown, and optional clear button */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <Input
+            aria-label="Search items"
             placeholder="Search by name, description, or location…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -98,7 +99,7 @@ export default function BrowsePage() {
 
           {/* Category dropdown — populated from the shared CATEGORY_KEYS/CATEGORY_MAP constants */}
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-full sm:w-56">
+            <SelectTrigger aria-label="Filter by category" className="w-full sm:w-56">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>

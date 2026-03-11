@@ -34,7 +34,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-24 md:py-32 px-6">
+    <section aria-label="Features" className="py-24 md:py-32 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div
@@ -68,7 +68,7 @@ export function FeaturesSection() {
             <Card key={feature.title} className="flex flex-col shadow-none">
               <CardHeader>
                 <div className="flex items-center justify-center size-12 rounded-xl bg-primary text-white mb-2">
-                  <feature.icon className="size-6" />
+                  <feature.icon aria-hidden="true" className="size-6" />
                 </div>
                 <h3 className="text-xl font-bold font-sans">{feature.title}</h3>
               </CardHeader>

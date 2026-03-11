@@ -13,9 +13,9 @@ const marqueeCards = Array.from({ length: 6 }, (_, i) => i);
 export function HeroSection() {
   const { user } = useUser();
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section aria-label="Hero" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background marquee - absolutely positioned behind everything */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+      <div aria-hidden="true" className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
         {/* Top fade */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent z-10" />
         {/* Bottom fade */}
@@ -89,7 +89,7 @@ export function HeroSection() {
               startOnView={false}
             />
           </span>
-          <Search className="w-[1em] h-[1em] hidden sm:block" />
+          <Search aria-hidden="true" className="w-[1em] h-[1em] hidden sm:block" />
         </motion.h1>
         {/* Tagline */}
         <motion.p
@@ -115,7 +115,7 @@ export function HeroSection() {
           <Button size="lg" variant="outline" asChild>
             <a href="/browse">
               Browse Found Items
-              <ArrowRight className="size-5 ml-1" />
+              <ArrowRight aria-hidden="true" className="size-5 ml-1" />
             </a>
           </Button>
         </motion.div>

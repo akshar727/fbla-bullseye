@@ -3,7 +3,7 @@ import { Instagram, Facebook, Youtube } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-primary text-white">
+    <footer aria-label="Site footer" className="border-t bg-primary text-white">
       {/* Main footer grid */}
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,7 +91,7 @@ export default function Footer() {
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white hover:text-primary-foreground transition-colors"
                 >
-                  <Instagram className="size-4" />
+                  <Instagram className="size-4" aria-hidden="true" />
                   Instagram
                 </a>
               </li>
@@ -102,7 +102,7 @@ export default function Footer() {
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white hover:text-primary-foreground transition-colors"
                 >
-                  <Facebook className="size-4" />
+                  <Facebook className="size-4" aria-hidden="true" />
                   Facebook
                 </a>
               </li>
@@ -113,7 +113,7 @@ export default function Footer() {
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white hover:text-primary-foreground transition-colors"
                 >
-                  <Youtube className="size-4" />
+                  <Youtube className="size-4" aria-hidden="true" />
                   YouTube
                 </a>
               </li>
