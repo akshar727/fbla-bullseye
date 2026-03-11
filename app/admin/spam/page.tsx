@@ -23,6 +23,7 @@ import {
   STATUS_ICONS,
   CATEGORY_ICONS,
   CATEGORY_BADGE_COLORS,
+  STATUS_COLORS,
 } from "@/lib/status-category-icons";
 import { getCategoryLabel } from "@/lib/categories";
 
@@ -254,7 +255,9 @@ function SpamClaimsTab() {
                   <p className="font-medium text-muted-foreground">
                     Item Status
                   </p>
-                  <p className="capitalize inline-flex items-center gap-1">
+                  <Badge
+                    className={`${STATUS_COLORS[viewClaim.claimed_item?.status ?? ""] ?? "bg-slate-100 text-slate-700"} capitalize mt-0.5 inline-flex items-center gap-1`}
+                  >
                     {viewClaim.claimed_item?.status &&
                       STATUS_ICONS[viewClaim.claimed_item.status] &&
                       (() => {
@@ -263,7 +266,7 @@ function SpamClaimsTab() {
                         return <StatusIcon className="size-3.5" />;
                       })()}
                     {viewClaim.claimed_item?.status || "Unknown"}
-                  </p>
+                  </Badge>
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Claimant</p>
@@ -567,14 +570,16 @@ function SpamItemsTab() {
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Status</p>
-                  <p className="capitalize inline-flex items-center gap-1">
+                  <Badge
+                    className={`${STATUS_COLORS[viewItem.status] ?? "bg-slate-100 text-slate-700"} capitalize mt-0.5 inline-flex items-center gap-1`}
+                  >
                     {STATUS_ICONS[viewItem.status] &&
                       (() => {
                         const StatusIcon = STATUS_ICONS[viewItem.status];
                         return <StatusIcon className="size-3.5" />;
                       })()}
                     {viewItem.status}
-                  </p>
+                  </Badge>
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Location</p>

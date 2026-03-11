@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
+import { Github } from "lucide-react";
 
 /* ─── Citations data ─────────────────────────────────────── */
 const CITATIONS = [
@@ -19,7 +20,7 @@ const CITATIONS = [
     id: "userway",
     label: "UserWay Accessibility Widget",
     body: "The UserWay Accessibility Widget (userway.org) was utilized to improve the accessibility of our website massively. This widget provides countless accessibility features to ensure our site is usable by everyone. With this widget, Bullseye is over 95% WCAG 2.1 compliant. We are extremely grateful for UserWay for providing a free widget that increases accessibility for all users.",
-  }
+  },
 ];
 
 /* ─── Licenses data ──────────────────────────────────────── */
@@ -1093,6 +1094,22 @@ export default function SourcesPage() {
   return (
     <>
       <main className="min-h-screen px-6 py-14 max-w-7xl mx-auto w-full">
+        {/* ── GitHub link ────────────────────────────────────── */}
+        <div className="mb-10">
+          <p className="text-primary font-semibold text-xs uppercase tracking-widest mb-2 font-mono">
+            Website Source Code / Codebase
+          </p>
+          <a
+            href="https://github.com/akshar727/fbla-bullseye/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-card text-sm font-medium hover:bg-muted transition-colors"
+          >
+            <Github className="size-4" />
+            akshar727/fbla-bullseye
+          </a>
+        </div>
+
         {/* ── Citations ──────────────────────────────────────── */}
         <section className="mb-16">
           <p className="text-primary font-semibold text-xs uppercase tracking-widest mb-2 font-mono">
