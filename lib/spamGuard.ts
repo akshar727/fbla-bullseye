@@ -19,8 +19,6 @@ async function getPrompt(claimId: string): Promise<string> {
       id,
       extra_descriptions,
       proof_of_ownerships,
-      created_at,
-      claimant (id, name),
       claimed_item:items!claim_claimed_item_fkey (
         id,
         name,
@@ -114,9 +112,7 @@ async function getItemPrompt(itemId: string): Promise<string> {
       name,
       category,
       description,
-      last_location,
-      date_lost,
-      posted_by (id, name)
+      last_location
     `,
     )
     .eq("id", itemId)

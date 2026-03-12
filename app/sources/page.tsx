@@ -21,6 +21,11 @@ const CITATIONS = [
     label: "UserWay Accessibility Widget",
     body: "The UserWay Accessibility Widget (userway.org) was utilized to improve the accessibility of our website massively. This widget provides countless accessibility features to ensure our site is usable by everyone. With this widget, Bullseye is over 95% WCAG 2.1 compliant. We are extremely grateful for UserWay for providing a free widget that increases accessibility for all users.",
   },
+  {
+    id: "google-trademarks",
+    label: "Google & Google Gemini — Trademark Disclaimer",
+    body: "Google™ and Google Gemini™ are registered trademarks of Google LLC. Bullseye is not affiliated with, endorsed by, or sponsored by Google LLC in any way. All rights to the Google and Google Gemini names, logos, and associated marks belong exclusively to Google LLC. References to these products on this site are solely for descriptive purposes to identify the third-party services used.",
+  },
 ];
 
 /* ─── Licenses data ──────────────────────────────────────── */

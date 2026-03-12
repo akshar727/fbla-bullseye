@@ -127,9 +127,10 @@ export async function POST(request: Request) {
   if (claimerError) {
     console.error("Error fetching claimer name:", claimerError);
   }
+  const poster = item.posted_by as { id: string; name: string } | null;
   const emailHtml = await render(
     <NewClaimEmail
-      name={claimerName?.name.split(" ")[0] ?? "User"}
+      name={poster?.name?.split(" ")[0] ?? "User"}
       itemName={item.name}
     />,
   );

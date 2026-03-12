@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import { createClient } from "@/lib/supabase/client";
@@ -54,7 +54,8 @@ export default function ChatPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const router = useRouter();
   const { user, u_loading } = useUser();
-  const supabase = createClient();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const supabase = useMemo(() => createClient(), []);
 
   const [room, setRoom] = useState<Room | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -76,6 +77,7 @@ export default function ChatPage() {
   // Initial load
   useEffect(() => {
     if (!roomId) return;
+
     fetch(`/api/chat/${roomId}`)
       .then((r) => r.json())
       .then((data) => {
@@ -88,23 +90,22 @@ export default function ChatPage() {
       })
       .catch(() => toast.error("Failed to load chat."))
       .finally(() => setLoading(false));
-  }, [roomId]);
 
-  // Realtime subscription
-  useEffect(() => {
-    if (!roomId) return;
+    // Use a unique channel name each mount to avoid conflicts when the
+    // previous removeChannel() hasn't fully resolved before the next
+    // subscribe() fires (async race on reload / fast navigation).
+    const channelName = `room:${roomId}-${Date.now()}`;
     const channel = supabase
-      .channel(`room:${roomId}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `room=eq.${roomId}`,
+          filter: `room=eq.${Number(roomId)}`,
         },
         async (payload) => {
-          // Fetch the full message row with sender join
           const { data } = await supabase
             .from("messages")
             .select(
@@ -120,12 +121,18 @@ export default function ChatPage() {
           }
         },
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === "CHANNEL_ERROR") {
+          console.warn("Realtime channel error, retrying in 2s…", err);
+          setTimeout(() => channel.subscribe(), 2000);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
+      console.log("Removed channel");
     };
-  }, [roomId]);
+  }, [roomId, supabase]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
